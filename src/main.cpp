@@ -18,7 +18,7 @@ private:
 };
 
 void dumpTestImage() {
-    float t = 0.8;
+    float t = -0.8;
     float angle = t * M_PI * 0.6;
 
     Vec3f sunDir(0, qCos(angle), -qSin(angle));

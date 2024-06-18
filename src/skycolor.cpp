@@ -29,6 +29,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 //[/ignore]
 #include "skycolor.h"
 
@@ -84,7 +85,7 @@ const Vec3f Atmosphere::betaM(21e-6f);
 
 bool solveQuadratic(float a, float b, float c, float& x1, float& x2) {
     if (b == 0) {
-        // Handle special case where the the two vector ray.dir and V are perpendicular
+        // Handle special case where the two vector ray.dir and V are perpendicular
         // with V = ray.orig - sphere.centre
         if (a == 0) return false;
         x1 = 0;
@@ -164,8 +165,8 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
             tCurrentLight += segmentLengthLight;
         }
         if (j == numSamplesLight) {
-            Vec3f tau =
-                    betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
+            Vec3f tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM
+                    * 1.1f * (opticalDepthM + opticalDepthLightM);
             Vec3f attenuation(exp(-tau.x), exp(-tau.y), exp(-tau.z));
             sumR += attenuation * hr;
             sumM += attenuation * hm;
@@ -207,7 +208,8 @@ QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
     return im;
 }
 
-QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMap, float fov, int numSamples) {
+QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMap, float fov, int numSamples,
+                              float subjectHeight) {
     Atmosphere atmosphere(sunDir);
     QImage im(dim.width(), dim.height(), QImage::Format_RGB32);
 
@@ -216,7 +218,7 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
     float aspectRatio = width / float(height);
     float angle = std::tan(fov * M_PI / 180 * 0.5f);
     unsigned numPixelSamples = numSamples;
-    Vec3f orig(0, atmosphere.earthRadius + 1000, 30000); // camera position
+    Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0); // camera position
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(0, 1); // to generate random floats in the range [0:1]
     for (unsigned y = 0; y < height; ++y) {
