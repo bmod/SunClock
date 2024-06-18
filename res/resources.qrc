@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<RCC>
+    <qresource>
+        <file>DMMono-Italic.ttf</file>
+        <file>DMMono-Light.ttf</file>
+        <file>DMMono-LightItalic.ttf</file>
+        <file>DMMono-Medium.ttf</file>
+        <file>DMMono-MediumItalic.ttf</file>
+        <file>DMMono-Regular.ttf</file>
+        <file>stylesheet.css</file>
+    </qresource>
+</RCC>
