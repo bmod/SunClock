@@ -221,7 +221,12 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
     Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0); // camera position
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(0, 1); // to generate random floats in the range [0:1]
-    for (unsigned y = 0; y < height; ++y) {
+
+    float stretchDown = 0.499;
+
+    for (unsigned yy = 0; yy < height; ++yy) {
+        auto ty = yy * stretchDown;
+        auto y = qRound(ty);
         for (unsigned x = 0; x < width; ++x) {
             Vec3f p;
             for (unsigned m = 0; m < numPixelSamples; ++m) {
@@ -252,7 +257,7 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
                 }
             }
             p *= 1.f / (numPixelSamples * numPixelSamples);
-            im.setPixelColor(x, y, QColor::fromRgbF(p.x, p.y, p.z));
+            im.setPixelColor(x, qRound(ty / stretchDown), QColor::fromRgbF(p.x, p.y, p.z));
         }
 
     }

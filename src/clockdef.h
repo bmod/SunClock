@@ -4,9 +4,10 @@
 
 class ClockDef {
 public:
-    ClockDef(const QString& timeZone, QString  displayName);
+    ClockDef(const QString& timeZone, QString displayName);
 
     QTimeZone timeZone() const;
+
     QString displayName() const;
 
 private:

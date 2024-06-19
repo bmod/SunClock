@@ -8,5 +8,6 @@
         <file>DMMono-MediumItalic.ttf</file>
         <file>DMMono-Regular.ttf</file>
         <file>stylesheet.css</file>
+        <file>airports.csv</file>
     </qresource>
 </RCC>

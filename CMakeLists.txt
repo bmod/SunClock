@@ -25,7 +25,7 @@ file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*.qrc)
 
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
