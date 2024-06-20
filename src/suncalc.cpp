@@ -1,5 +1,9 @@
 #include "suncalc.h"
 
+#include "SolarAzEl.h"
+
+#include <QtMath>
+#include <QtDebug>
 
 qreal get_julian_day(int year, int month, int day) {
     if (month <= 2) {
@@ -86,8 +90,8 @@ qreal calc_equation_of_time(qreal t) {
 suncalc::SunCoords suncalc::sunCoordinates(qreal localHoursDecimal, qreal latitude, qreal longitude,
                                            qreal utcZone, int month, int day, int year,
                                            bool useRefraction, qreal north_offset) {
-    longitude *= -1; // for internal calculations
-    qreal utc_time = localHoursDecimal + utcZone; // Set Greenwich Meridian Time
+    longitude *= -1;                             // for internal calculations
+    qreal utc_time = localHoursDecimal + utcZone;// Set Greenwich Meridian Time
 
     qreal deg90 = 89.93;
     if (latitude > deg90) {
@@ -114,7 +118,7 @@ suncalc::SunCoords suncalc::sunCoordinates(qreal localHoursDecimal, qreal latitu
 
     qreal csz = (sin(latitude) * sin(solar_dec) +
                  cos(latitude) * cos(solar_dec) *
-                 cos(qDegreesToRadians(hour_angle)));
+                         cos(qDegreesToRadians(hour_angle)));
 
     if (csz > 1) {
         csz = 1.0;
@@ -130,7 +134,9 @@ suncalc::SunCoords suncalc::sunCoordinates(qreal localHoursDecimal, qreal latitu
     qreal azimuth;
     if (abs(az_denom) > 0.001) {
         qreal az_rad = ((sin(latitude) *
-                         cos(zenith)) - sin(solar_dec)) / az_denom;
+                         cos(zenith)) -
+                        sin(solar_dec)) /
+                       az_denom;
         if (abs(az_rad) > 1)
             az_rad = az_rad < 0 ? -1 : 1;
         azimuth = M_PI - acos(az_rad);
@@ -173,9 +179,18 @@ suncalc::SunCoords suncalc::sunCoordinates(qreal localHoursDecimal, qreal latitu
     return {azimuth, elevation};
 }
 
+suncalc::SunCoords suncalc::sunCoords(const QDateTime& time, qreal latitude, qreal longitude, qreal altitude) {
+    double Az = 0;
+    double El = 0;
+    qDebug() << "Datetime:" << time;
+    SolarAzEl(time.toTime_t(), latitude, longitude, altitude, &Az, &El);
+
+    return {Az, El};
+}
+
 Vec3f suncalc::sunVector(const suncalc::SunCoords& c) {
-    qreal phi = -c.azimuth;
-    qreal theta = M_PI_2 - c.elevation;
+    qreal phi = -qDegreesToRadians(c.azimuth);
+    qreal theta = M_PI_2 - qDegreesToRadians(c.elevation);
 
     // y -> z
     // z -> x
@@ -185,9 +200,9 @@ Vec3f suncalc::sunVector(const suncalc::SunCoords& c) {
 //    qreal loc_y = sin(theta) * cos(phi);
 //    qreal loc_z = cos(theta);
 
-    qreal loc_x = sin(phi) * sin(-theta);
-    qreal loc_y = sin(theta) * cos(phi);
-    qreal loc_z = cos(theta);
+    qreal loc_z = sin(phi) * sin(-theta);
+    qreal loc_x = sin(theta) * cos(phi);
+    qreal loc_y = cos(theta);
 
     return {(float) loc_x, (float) loc_y, (float) loc_z};
 }

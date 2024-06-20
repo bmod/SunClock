@@ -1,9 +1,9 @@
 // Stolen from the blender-addon "sun_position": https://github.com/blender/blender-addons
 #pragma once
 
-#include <QtMath>
-
 #include "vec3.h"
+
+#include <qdatetime.h>
 
 namespace suncalc {
 
@@ -16,6 +16,8 @@ namespace suncalc {
 
     SunCoords sunCoordinates(qreal localHoursDecimal, qreal latitude, qreal longitude, qreal utcZone,
                              int month, int day, int year, bool useRefraction = false, qreal north_offset = 0);
+
+    SunCoords sunCoords(const QDateTime& time, qreal latitude, qreal longitude, qreal altitude);
 
     Vec3f sunVector(const SunCoords& c);
 }

@@ -1,13 +1,15 @@
 #pragma once
 
-#include <QTimeZone>
 #include "csv.h"
+#include <QTimeZone>
 
-namespace airportsdata {
+#include <memory>
+
+namespace apdata {
 
     using LatLong = QPair<qreal, qreal>;
 
-    struct Airport {
+    struct Location {
         QString iata;
         QString name;
         qreal latitude;
@@ -16,16 +18,9 @@ namespace airportsdata {
         QString municipality;
     };
 
-    class AirportsData {
-    public:
-        AirportsData(const QString& filePath);
+    using AirportPtr = std::unique_ptr<Location>;
+    using LocationList = std::vector<AirportPtr>;
 
-        const Airport* airport(const QString& iana);
+    void loadAirports(const QString& filePath, const QStringList& iataList, LocationList& outAirports);
 
-    private:
-        void load(const QString& filePath);
-
-        QList<Airport> mAirports;
-    };
-
-}
+}// namespace airportsdata

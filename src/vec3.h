@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-
+#include <cmath>
 
 const float kInfinity = std::numeric_limits<float>::max();
 

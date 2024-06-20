@@ -39,17 +39,15 @@
 //
 //#endif
 
+#include <QPixmap>
 #include <algorithm>
 #include <cmath>
-#include <random>
 #include <limits>
-#include <QPixmap>
+#include <random>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)
 #endif
-
-
 
 
 // [comment]
@@ -61,20 +59,19 @@ public:
     Atmosphere(
             Vec3f sd = Vec3f(0, 1, 0),
             float er = 6360e3, float ar = 6420e3,
-            float hr = 7994, float hm = 1200) :
-            sunDirection(sd),
-            earthRadius(er),
-            atmosphereRadius(ar),
-            Hr(hr),
-            Hm(hm) {}
+            float hr = 7994, float hm = 1200) : sunDirection(sd),
+                                                earthRadius(er),
+                                                atmosphereRadius(ar),
+                                                Hr(hr),
+                                                Hm(hm) {}
 
     Vec3f computeIncidentLight(const Vec3f& orig, const Vec3f& dir, float tmin, float tmax) const;
 
-    Vec3f sunDirection;     // The sun direction (normalized)
-    float earthRadius;      // In the paper this is usually Rg or Re (radius ground, eart)
-    float atmosphereRadius; // In the paper this is usually R or Ra (radius atmosphere)
-    float Hr;               // Thickness of the atmosphere if density was uniform (Hr)
-    float Hm;               // Same as above but for Mie scattering (Hm)
+    Vec3f sunDirection;    // The sun direction (normalized)
+    float earthRadius;     // In the paper this is usually Rg or Re (radius ground, eart)
+    float atmosphereRadius;// In the paper this is usually R or Ra (radius atmosphere)
+    float Hr;              // Thickness of the atmosphere if density was uniform (Hr)
+    float Hm;              // Same as above but for Mie scattering (Hm)
 
     static const Vec3f betaR;
     static const Vec3f betaM;
@@ -89,14 +86,14 @@ bool solveQuadratic(float a, float b, float c, float& x1, float& x2) {
         // with V = ray.orig - sphere.centre
         if (a == 0) return false;
         x1 = 0;
-        x2 = std::sqrtf(-c / a);
+        x2 = sqrtf(-c / a);
         return true;
     }
     float discr = b * b - 4 * a * c;
 
     if (discr < 0) return false;
 
-    float q = (b < 0.f) ? -0.5f * (b - std::sqrtf(discr)) : -0.5f * (b + std::sqrtf(discr));
+    float q = (b < 0.f) ? -0.5f * (b - sqrtf(discr)) : -0.5f * (b + sqrtf(discr));
     x1 = q / a;
     x2 = c / q;
 
@@ -134,10 +131,10 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
     uint32_t numSamplesLight = 8;
     float segmentLength = (tmax - tmin) / numSamples;
     float tCurrent = tmin;
-    Vec3f sumR(0), sumM(0); // mie and rayleigh contribution
+    Vec3f sumR(0), sumM(0);// mie and rayleigh contribution
     float opticalDepthR = 0, opticalDepthM = 0;
     float mu = dot(dir,
-                   sunDirection); // mu in the paper which is the cosine of the angle between the sun direction and the ray direction
+                   sunDirection);// mu in the paper which is the cosine of the angle between the sun direction and the ray direction
     float phaseR = 3.f / (16.f * M_PI) * (1 + mu * mu);
     float g = 0.76f;
     float phaseM = 3.f / (8.f * M_PI) * ((1.f - g * g) * (1.f + mu * mu)) /
@@ -165,8 +162,7 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
             tCurrentLight += segmentLengthLight;
         }
         if (j == numSamplesLight) {
-            Vec3f tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM
-                    * 1.1f * (opticalDepthM + opticalDepthLightM);
+            Vec3f tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
             Vec3f attenuation(exp(-tau.x), exp(-tau.y), exp(-tau.z));
             sumR += attenuation * hr;
             sumM += attenuation * hm;
@@ -188,7 +184,7 @@ QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
     int width = im.width();
     int height = im.height();
 
-    Vec3f* image = new Vec3f[width * height], * p = image;
+    Vec3f *image = new Vec3f[width * height], *p = image;
     memset(image, 0x0, sizeof(Vec3f) * width * height);
     for (int j = 0; j < height; ++j) {
         float y = 2.f * (j + 0.5f) / float(height - 1) - 1.f;
@@ -208,8 +204,8 @@ QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
     return im;
 }
 
-QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMap, float fov, int numSamples,
-                              float subjectHeight) {
+QImage renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMap, float fov, int numSamples,
+                               float subjectHeight) {
     Atmosphere atmosphere(sunDir);
     QImage im(dim.width(), dim.height(), QImage::Format_RGB32);
 
@@ -218,9 +214,9 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
     float aspectRatio = width / float(height);
     float angle = std::tan(fov * M_PI / 180 * 0.5f);
     unsigned numPixelSamples = numSamples;
-    Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0); // camera position
+    Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0);// camera position
     std::default_random_engine generator;
-    std::uniform_real_distribution<float> distribution(0, 1); // to generate random floats in the range [0:1]
+    std::uniform_real_distribution<float> distribution(0, 1);// to generate random floats in the range [0:1]
 
     float stretchDown = 0.499;
 
@@ -259,7 +255,6 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
             p *= 1.f / (numPixelSamples * numPixelSamples);
             im.setPixelColor(x, qRound(ty / stretchDown), QColor::fromRgbF(p.x, p.y, p.z));
         }
-
     }
 
     if (!toneMap)
@@ -271,7 +266,7 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
             Vec3f p(col.redF(), col.greenF(), col.blueF());
             if (toneMap) {
                 // Apply tone mapping function
-                for (int c=0; c < 3; c++)
+                for (int c = 0; c < 3; c++)
                     p[c] = p[c] < 1.413f ? pow(p[c] * 0.38317f, 1.0f / 2.2f) : 1.0f - exp(-p[c]);
             }
 
@@ -279,4 +274,74 @@ QImage skycolor::renderCamera(const Vec3f& sunDir, const QSize& dim, bool toneMa
         }
     }
     return im;
+}
+
+
+void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples, float subjectHeight) {
+    Atmosphere atmosphere(sunDir);
+
+    int width = im.width();
+    int height = im.height();
+    float aspectRatio = width / float(height);
+    float angle = std::tan(fov * M_PI / 180 * 0.5f);
+    unsigned numPixelSamples = numSamples;
+    Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0);// camera position
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> distribution(0, 1);// to generate random floats in the range [0:1]
+
+    float stretchDown = 0.499;
+
+    for (unsigned yy = 0; yy < height; ++yy) {
+        auto ty = yy * stretchDown;
+        auto y = qRound(ty);
+        for (unsigned x = 0; x < width; ++x) {
+            Vec3f p;
+            for (unsigned m = 0; m < numPixelSamples; ++m) {
+                for (unsigned n = 0; n < numPixelSamples; ++n) {
+                    float rayx = (2 * (x + (m + distribution(generator)) / numPixelSamples) / float(width) - 1) *
+                                 aspectRatio * angle;
+                    float rayy =
+                            (1 - (y + (n + distribution(generator)) / numPixelSamples) / float(height) * 2) * angle;
+                    Vec3f dir(rayx, rayy, -1);
+                    normalize(dir);
+                    // [comment]
+                    // Does the ray intersect the planetory body? (the intersection test is against the Earth here
+                    // not against the atmosphere). If the ray intersects the Earth body and that the intersection
+                    // is ahead of us, then the ray intersects the planet in 2 points, t0 and t1. But we
+                    // only want to comupute the atmosphere between t=0 and t=t0 (where the ray hits
+                    // the Earth first). If the viewing ray doesn't hit the Earth, or course the ray
+                    // is then bounded to the range [0:INF]. In the method computeIncidentLight() we then
+                    // compute where this primary ray intersects the atmosphere and we limit the max t range
+                    // of the ray to the point where it leaves the atmosphere.
+                    // [/comment]
+                    float t0, t1, tMax = kInfinity;
+                    if (raySphereIntersect(orig, dir, atmosphere.earthRadius, t0, t1) && t1 > 0)
+                        tMax = std::max(0.f, t0);
+                    // [comment]
+                    // The *viewing or camera ray* is bounded to the range [0:tMax]
+                    // [/comment]
+                    p += atmosphere.computeIncidentLight(orig, dir, 0, tMax);
+                }
+            }
+            p *= 1.f / (numPixelSamples * numPixelSamples);
+            im.setPixelColor(x, qRound(ty / stretchDown), QColor::fromRgbF(p.x, p.y, p.z));
+        }
+    }
+
+    if (!toneMap)
+        return;
+
+    for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            auto col = im.pixelColor(i, j);
+            Vec3f p(col.redF(), col.greenF(), col.blueF());
+            if (toneMap) {
+                // Apply tone mapping function
+                for (int c = 0; c < 3; c++)
+                    p[c] = p[c] < 1.413f ? pow(p[c] * 0.38317f, 1.0f / 2.2f) : 1.0f - exp(-p[c]);
+            }
+
+            im.setPixelColor(i, j, QColor::fromRgbF(p.x, p.y, p.z));
+        }
+    }
 }

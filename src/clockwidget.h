@@ -1,26 +1,48 @@
 #pragma once
 
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include "scalinglabel.h"
-#include "clockdef.h"
-#include "blockwidget.h"
+
+#include <airportsdata.h>
 
 
-class ClockWidget : public QWidget {
-Q_OBJECT
+class Cellwidget final : public QWidget {
+    Q_OBJECT
 public:
-    ClockWidget(const QList<ClockDef>& timeZones);
+    explicit Cellwidget(const apdata::Location* clock = nullptr);
+    [[nodiscard]] const apdata::Location* location() const;
+    void setTime(const QString& time);
+    void setText(const QString& text);
+    [[nodiscard]] QImage image() const;
 
 protected:
+    void paintEvent(QPaintEvent* event) override;
 
 private:
-    void updateTime();
+    const apdata::Location* mLocation = nullptr;
 
-    QList<ClockDef> mClockDefs;
-    QList<BlockWidget*> mZoneWidgets;
-    QGridLayout mLayout;
-    BlockWidget mMinuteWidget;
-    QTimer mTimer;
+    QVBoxLayout mLayout;
+    QImage mImage;
+    QColor mDefaultBgColor;
+    ScalingLabel mTimeLabel;
+    ScalingLabel mZoneLabel;
+    qreal mTimeVsZoneWeight = 0.8;
 };
 
+class ClockWidget final : public QWidget {
+    Q_OBJECT
+public:
+    explicit ClockWidget(const apdata::LocationList& locations);
+
+private:
+    void updateImages();
+    void updateTime();
+
+    const apdata::LocationList& mLocations;
+    QList<Cellwidget*> mZoneWidgets;
+    QGridLayout mLayout;
+    Cellwidget mMinuteWidget;
+    QTimer mTimer;
+};
