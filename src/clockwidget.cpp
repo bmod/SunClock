@@ -1,5 +1,6 @@
 #include "clockwidget.h"
 #include <QPainter>
+#include <QPainterPath>
 #include <QThreadPool>
 #include <QtDebug>
 #include <skycolor.h>
@@ -10,12 +11,17 @@ Cellwidget::Cellwidget(const apdata::Location* clock)
       mImage(128, 128, QImage::Format_RGB32),
       mDefaultBgColor("#567") {
 
+
     mLayout.setContentsMargins(10, 0, 0, 0);
     mLayout.setSpacing(0);
     setLayout(&mLayout);
 
+
     mTimeLabel.setAlignment(Qt::AlignRight);
     mTimeLabel.setStyleSheet("color: white");
+
+    mZoneLabel.setStyleSheet("color: #666");
+
     mLayout.addWidget(&mTimeLabel, qRound(mTimeVsZoneWeight * 1000));
     mLayout.addWidget(&mZoneLabel, qRound((1 - mTimeVsZoneWeight) * 1000));
 }
@@ -39,6 +45,7 @@ QImage Cellwidget::image() const {
 void Cellwidget::paintEvent(QPaintEvent* event) {
     QWidget::paintEvent(event);
     QPainter ptr(this);
+    ptr.setRenderHint(QPainter::SmoothPixmapTransform);
     ptr.setPen(Qt::NoPen);
     ptr.setBrush(mDefaultBgColor);
     const auto rec = rect().adjusted(0, 0, -1, -1);
@@ -67,6 +74,7 @@ ClockWidget::ClockWidget(const apdata::LocationList& locations)
     mLayout.addWidget(mZoneWidgets[2], 1, 0);
     mLayout.addWidget(mZoneWidgets[3], 1, 1);
     mLayout.addWidget(&mMinuteWidget, 0, 2);
+    mLayout.addWidget(&mSecondWidget, 1, 2);
 
     connect(&mTimer, &QTimer::timeout, this, &ClockWidget::updateTime);
     mTimer.setInterval(1000);
@@ -74,33 +82,79 @@ ClockWidget::ClockWidget(const apdata::LocationList& locations)
 
     updateTime();
 
-    QTimer::singleShot(2000, this, &ClockWidget::updateImages);
+    connect(&mImageTimer, &QTimer::timeout, this, &ClockWidget::updateImages);
+    mImageTimer.setInterval(10 * 1000);
+    mImageTimer.start();
+
+    connect(this, &ClockWidget::imageLoaded, this, &ClockWidget::onImageLoaded, Qt::QueuedConnection);
+
+    updateImages();
 }
 void ClockWidget::updateImages() {
 
+    int index = 0;
     for (auto widget: mZoneWidgets) {
-        const auto& loc = widget->location();
-        auto coords = suncalc::sunCoords(QDateTime::currentDateTimeUtc(),
-                                         loc->latitude, loc->longitude, 0.1);
 
-        qDebug() << "elevation:" << coords.elevation << "azimuth:" << coords.azimuth;
+        QThreadPool::globalInstance()->start([this, index, widget] {
+            const auto loc = widget->location();
+            const auto coords = suncalc::sunCoords(QDateTime::currentDateTimeUtc(),
+                                                   loc->latitude, loc->longitude, 10);
 
-        auto sunDir = sunVector(coords);
+            const auto sunDir = sunVector(coords);
 
-        QImage im = widget->image();
-        skycolor::renderCamera(sunDir, im);
-        widget->update();
-        // widget.setImage(im);
-        //
-        // QThreadPool::start([loc] {
-        // },
-        //                    Qt::LowEventPriority);
+            auto image = widget->image();
+            skycolor::renderCamera(sunDir, image);
+            image = image.scaled(512, 512);
+            {
+                // TODO: Correct corner aspect
+                int r = 32;
+                int r2 = r * 2;
+                int w = image.width();
+                int h = image.height();
+                QPainterPath path;
+                path.moveTo(0, 0);
+                path.lineTo(0, r);
+                path.arcTo(0, 0, r2, r2, 180, -90);
+                path.lineTo(0, 0);
+
+                path.moveTo(w, 0);
+                path.lineTo(w, r);
+                path.arcTo(w - r2, 0, r2, r2, 0, 90);
+                path.lineTo(w, 0);
+
+                path.moveTo(w, h);
+                path.lineTo(w - r, h);
+                path.arcTo(w - r2, h - r2, r2, r2, -90, 90);
+                path.lineTo(w, h);
+
+                path.moveTo(0, h);
+                path.lineTo(r, h);
+                path.arcTo(0, h - r2, r2, r2, -90, -90);
+                path.lineTo(0, h);
+
+                QPainter ptr(&image);
+                ptr.setRenderHint(QPainter::Antialiasing, true);
+                ptr.fillPath(path, Qt::black);
+            }
+
+            imageLoaded(index, image);
+        },
+                                             Qt::LowEventPriority);
+        ++index;
     }
+}
+
+
+void ClockWidget::onImageLoaded(int zoneIndex, QImage im) {
+    auto widget = mZoneWidgets[zoneIndex];
+    widget->setImage(im.scaled(512, 512, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 void ClockWidget::updateTime() {
     auto minuteStr = QDateTime::currentDateTimeUtc().toString(":mm");
     mMinuteWidget.setTime(minuteStr);
+    auto secondStr = QDateTime::currentDateTimeUtc().toString(":ss");
+    mSecondWidget.setTime(secondStr);
 
     for (int i = 0, len = mZoneWidgets.count(); i < len; i++) {
         const auto& def = mLocations[i];
