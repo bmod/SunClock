@@ -21,6 +21,6 @@ namespace apdata {
     using AirportPtr = std::unique_ptr<Location>;
     using LocationList = std::vector<AirportPtr>;
 
-    void loadAirports(const QString& filePath, const QStringList& iataList, LocationList& outAirports);
+    bool loadAirports(const QString& filePath, const QStringList& iataList, LocationList& outAirports);
 
 }// namespace airportsdata

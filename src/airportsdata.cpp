@@ -11,12 +11,17 @@ static const QString Municipality = "municipality";
 static const QString Timezone = "timezone";
 
 
-void apdata::loadAirports(const QString& filePath, const QStringList& iataList, LocationList& outAirports) {
+bool apdata::loadAirports(const QString& filePath, const QStringList& iataList, LocationList& outAirports) {
+    if (iataList.isEmpty()) {
+        qWarning() << "No locations";
+        return false;
+    }
+
 
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "Failed to open path" << filePath;
-        return;
+        return false;
     }
 
     QTextStream inStream(&file);
@@ -25,7 +30,7 @@ void apdata::loadAirports(const QString& filePath, const QStringList& iataList, 
     // Read header
     if (!qcsv::readCsvRow(inStream, &fields)) {
         qWarning() << "Failed to read row";
-        return;
+        return false;
     }
 
     const int fieldCount = fields.length();
@@ -49,4 +54,5 @@ void apdata::loadAirports(const QString& filePath, const QStringList& iataList, 
 
         outAirports.emplace_back(std::move(ap));
     }
+    return true;
 }

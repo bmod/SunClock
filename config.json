@@ -1,0 +1,23 @@
+{
+  "locations": [
+    "LAX",
+    "AMS",
+    "HKG",
+    "SYD"
+  ],
+  "style": {
+    "font": "DM Mono Medium",
+    "backgroundColor": "#333",
+    "clockColorTime": "#FF0",
+    "clockColorLocation": "#0F0",
+    "margin": 16,
+    "boxSpacing": 16,
+    "boxCornerRadius": 16,
+    "skyResolutionScale": 3,
+    "skySamples": 2
+  },
+  "logic": {
+    "clockTimerInterval": 3,
+    "imageTimerInterval": 60
+  }
+}

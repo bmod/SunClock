@@ -49,7 +49,11 @@ if (WIN32)
     endif ()
 endif ()
 
-# ====== QT
+
+# Config file
+configure_file(config.json ${CMAKE_CURRENT_BINARY_DIR})
+
+# QT
 if (WIN32)
     set(EXE_BIN ${PROJECT_NAME}.exe)
     string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)

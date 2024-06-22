@@ -1,110 +1,50 @@
-#include <iostream>
-
+#include <QAction>
 #include <QApplication>
 #include <QFontDatabase>
 #include <QMainWindow>
-#include <QtDebug>
-#include <QtMath>
 
-#include "airportsdata.h"
 #include "clockwidget.h"
-#include "skycolor.h"
-#include "suncalc.h"
-#include "vec3.h"
 
-class ClockWindow : public QMainWindow {
+#include <config.h>
+
+class ClockWindow final : public QMainWindow {
 public:
-    ClockWindow(const apdata::LocationList& timeZones) : mClockWidget(timeZones) {
+    explicit ClockWindow(const Config& config) : mClockWidget(config) {
         setCentralWidget(&mClockWidget);
+
+        const auto action = new QAction("Exit", this);
+        action->setShortcut(Qt::Key_Escape);
+        connect(action, &QAction::triggered, [this] {
+            close();
+        });
+        addAction(action);
     }
 
 private:
     ClockWidget mClockWidget;
+    QAction* mExitAction;
 };
 
-qreal toDecimalHour(const QTime& time) {
-    const qreal h = time.hour();
-    const qreal m = time.minute() / 60.0;
-    const qreal s = time.second() / (60.0 * 60.0);
-    const qreal ms = time.msec() / (60.0 * 60.0 * 1000.0);
-    return h + m + s + ms;
-}
-//
-// void dumpTestImage() {
-//     float t = -0.5;
-//     float angle = t * M_PI * 0.6f;
-//
-//     airportsdata::AirportsData apData(":/airports.csv");
-//     auto airport = apData.airport("LAX");
-//
-//     // auto dt = QDateTime::currentDateTimeUtc().toTimeZone(airport->timezone);
-//     // auto localHours = toDecimalHour(dt.time());
-//     // auto utcOffset = dt.offsetFromUtc() / (60.0 * 60.0 * 24.0);
-//     // qDebug() << "Timezone" << airport->timezone.displayName(dt);
-//     // qDebug() << "lat:" << airport->latitude << "long:" << airport->longitude;
-//     // qDebug() << "Timespec" << dt.timeSpec();
-//     // qDebug() << "UTC Offset:" << utcOffset;
-//     //    auto coords = suncalc::sunCoordinates(
-//     //            localHours,
-//     //            airport->latitude,
-//     //            airport->longitude,
-//     //            airport->timezone.offsetFromUtc(dt),
-//     //            dt.date().month(),
-//     //            dt.date().day(),
-//     //            dt.date().year()
-//     //    );
-//     qreal lat = 33.9425;
-//     qreal lon = -118.408;
-//
-//     // auto coords = suncalc::sunCoordinates(
-//     //         18,
-//     //         lat,
-//     //         lon,
-//     //         7,
-//     //         6,
-//     //         19,
-//     //         2024
-//     // );
-//
-//     auto coords = suncalc::sunCoords(QDateTime::currentDateTimeUtc(), lat, lon, 0.1);
-//
-//     qDebug() << "elevation:" << coords.elevation << "azimuth:" << coords.azimuth;
-//
-//     auto sunDir = sunVector(coords);
-//
-//     //    Vec3f sunDir(0, cos(angle), -sin(angle));
-//     //    auto im = skycolor::renderSkydome(sunDir);
-//     auto im = skycolor::renderCamera(sunDir, {128, 128});
-//     im.save("C:/Users/bkorsmit/Documents/SunClock/test.png");
-// }
 
 int main(int argc, char** argv) {
+    QApplication::setApplicationName("SunClock");
+    QApplication::setOrganizationDomain("coresmith.com");
+
     QApplication app(argc, argv);
 
-
-    // Regions
-    QStringList airportIatas = {
-            "LAX",
-            "AMS",
-            "HKG",
-            "SYD",
-    };
-
-    apdata::LocationList airports;
-    loadAirports(":/airports.csv", airportIatas, airports);
+    const Config conf;
 
     // Font
     QFontDatabase::addApplicationFont(":/DMMono-Medium.ttf");
-    QFont font("DM Mono Medium");
-    QApplication::setFont(font);
+    QApplication::setFont(conf.fontName());
 
     // Style
-    app.setStyleSheet("QMainWindow { background-color: black; }");
-
+    app.setStyleSheet(QString("QMainWindow { background-color: %1; }").arg(conf.backgroundColor().name()));
 
     // Get!
-    ClockWindow win(airports);
+    ClockWindow win(conf);
     win.resize(1280, 720);
+
     win.show();
 
     return app.exec();

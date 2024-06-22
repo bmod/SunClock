@@ -2,8 +2,8 @@
 
 #include "SolarAzEl.h"
 
-#include <QtMath>
 #include <QtDebug>
+#include <QtMath>
 
 qreal get_julian_day(int year, int month, int day) {
     if (month <= 2) {
@@ -19,8 +19,8 @@ qreal get_julian_day(int year, int month, int day) {
 qreal julian_time_from_y2k(qreal utc_time, int year, int month, int day) {
     // Get the elapsed julian time since 1/1/2000 12:00 gmt
     // Y2k epoch (1/1/2000 12:00 gmt) is Julian day 2451545.0
-    qreal century = 36525.0;  // Days in Julian Century
-    qreal epoch = 2451545.0; // Julian Day for 1/1/2000 12:00 gmt
+    qreal century = 36525.0;// Days in Julian Century
+    qreal epoch = 2451545.0;// Julian Day for 1/1/2000 12:00 gmt
     qreal jd = get_julian_day(year, month, day);
     return ((jd + (utc_time / 24)) - epoch) / century;
 }
@@ -58,8 +58,7 @@ qreal true_longitude_of_sun(qreal t) {
 
 
 qreal apparent_longitude_of_sun(qreal t) {
-    return (qDegreesToRadians(true_longitude_of_sun(t)
-                              - 0.00569 - 0.00478 * sin(qDegreesToRadians(125.04 - 1934.136 * t))));
+    return (qDegreesToRadians(true_longitude_of_sun(t) - 0.00569 - 0.00478 * sin(qDegreesToRadians(125.04 - 1934.136 * t))));
 }
 
 qreal sun_declination(qreal e, qreal L) {
@@ -82,8 +81,7 @@ qreal calc_equation_of_time(qreal t) {
     qreal sin4ml = sin(4.0 * ml);
     qreal sinm = sin(m);
     qreal sin2m = sin(2.0 * m);
-    qreal etime = (y * sin2ml - 2.0 * e * sinm + 4.0 * e * y *
-                                                 sinm * cos2ml - 0.5 * pow(y, 2) * sin4ml - 1.25 * pow(e, 2) * sin2m);
+    qreal etime = (y * sin2ml - 2.0 * e * sinm + 4.0 * e * y * sinm * cos2ml - 0.5 * pow(y, 2) * sin4ml - 1.25 * pow(e, 2) * sin2m);
     return (qRadiansToDegrees(etime) * 4);
 }
 
@@ -179,30 +177,21 @@ suncalc::SunCoords suncalc::sunCoordinates(qreal localHoursDecimal, qreal latitu
     return {azimuth, elevation};
 }
 
-suncalc::SunCoords suncalc::sunCoords(const QDateTime& time, qreal latitude, qreal longitude, qreal altitude) {
-    double Az = 0;
-    double El = 0;
-    qDebug() << "Datetime:" << time;
-    SolarAzEl(time.toTime_t(), latitude, longitude, altitude, &Az, &El);
-
-    return {Az, El};
+suncalc::SunCoords suncalc::sunCoords(const QDateTime& time, const qreal latitude, const qreal longitude, const qreal altitude) {
+    SunCoords coords;
+    SolarAzEl(time.toTime_t(), latitude, longitude, altitude, &coords.azimuth, &coords.elevation);
+    return coords;
 }
 
-Vec3f suncalc::sunVector(const suncalc::SunCoords& c) {
-    qreal phi = -qDegreesToRadians(c.azimuth);
-    qreal theta = M_PI_2 - qDegreesToRadians(c.elevation);
+Vec3f suncalc::sunVector(const SunCoords& c) {
+    const qreal phi = -qDegreesToRadians(c.azimuth);
+    const qreal theta = M_PI_2 - qDegreesToRadians(c.elevation);
 
-    // y -> z
-    // z -> x
-    // x -> y
+    const qreal locZ = sin(phi) * sin(-theta);
+    const qreal locX = sin(theta) * cos(phi);
+    const qreal locY = cos(theta);
 
-//    qreal loc_x = sin(phi) * sin(-theta);
-//    qreal loc_y = sin(theta) * cos(phi);
-//    qreal loc_z = cos(theta);
-
-    qreal loc_z = sin(phi) * sin(-theta);
-    qreal loc_x = sin(theta) * cos(phi);
-    qreal loc_y = cos(theta);
-
-    return {(float) loc_x, (float) loc_y, (float) loc_z};
+    return {static_cast<float>(locX),
+            static_cast<float>(locY),
+            static_cast<float>(locZ)};
 }

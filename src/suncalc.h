@@ -11,7 +11,7 @@ namespace suncalc {
     public:
         qreal azimuth;
         qreal elevation;
-        SunCoords(qreal azimuth, qreal elevation) : azimuth(azimuth), elevation(elevation) {}
+        SunCoords(const qreal azimuth = 0, const qreal elevation = 0) : azimuth(azimuth), elevation(elevation) {}
     };
 
     SunCoords sunCoordinates(qreal localHoursDecimal, qreal latitude, qreal longitude, qreal utcZone,
