@@ -8,8 +8,8 @@
 #include <suncalc.h>
 #include <utils.h>
 
-ClockWidget::ClockWidget(const Config& config)
-    : mConfig(config), mMinuteWidget(config), mSecondWidget(config) {
+ClockWidget::ClockWidget() {
+    const auto& config = Config::get();
     const int margin = config.margin();
     mLayout.setContentsMargins(margin, margin, margin, margin);
     mLayout.setSpacing(config.boxSpacing());
@@ -19,7 +19,7 @@ ClockWidget::ClockWidget(const Config& config)
     mSecondWidget.setHourColor(config.clockColorSeconds());
 
     for (auto& loc: config.locations()) {
-        auto cell = new TileWidget(config, loc.get());
+        auto cell = new TileWidget(loc.get());
         cell->setLocationColor(config.clockColorLocation());
         cell->setHourColor(config.clockColorTime());
         mZoneWidgets << cell;
@@ -82,33 +82,37 @@ void ClockWidget::updateImages() {
     int index = 0;
     for (auto widget: mZoneWidgets) {
 
-        QThreadPool::globalInstance()->start([this, index, widget] {
-            const auto loc = widget->location();
-            const auto coords = suncalc::sunCoords(QDateTime::currentDateTimeUtc(),
-                                                   loc->latitude, loc->longitude, 10);
-            const auto sunDir = sunVector(coords);
+        QThreadPool::globalInstance()->start(
+                [this, index, widget] {
+                    const auto& conf = Config::get();
 
-            const double skyResolutionScale = mConfig.skyResolutionScale();
-            const auto destImage = widget->image();
-            if (skyResolutionScale < 1)
-                qFatal("Sky resolution must be > 1");
+                    const auto loc = widget->location();
+                    const auto coords =
+                            suncalc::sunCoords(QDateTime::currentDateTimeUtc(), loc->latitude, loc->longitude, 10);
+                    const auto sunDir = sunVector(coords);
 
-            QImage im(destImage.size() / mConfig.skyResolutionScale(), destImage.format());
-            skycolor::renderCamera(sunDir, im, false, 90, 2, 1, 0.6);
-            im = im.scaled(destImage.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            const auto& mini = im.scaled(QSize(3, 3), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            const float brightness = utils::averageBrightness(mini);
-            drawCorners(im, mConfig.boxCornerRadius(), mConfig.backgroundColor());
-            imageLoaded(index, im, brightness);
-        },
-                                             Qt::LowEventPriority);
+                    const double skyResolutionScale = conf.skyResolutionScale();
+                    const auto destImage = widget->image();
+
+                    if (skyResolutionScale < 1) qFatal("Sky resolution must be > 1");
+
+                    QImage im(destImage.size() / conf.skyResolutionScale(), destImage.format());
+                    skycolor::renderCamera(sunDir, im, conf.toneMap(), conf.cameraFov(), conf.skySamples(), conf.subjectHeight(), conf.stretchDown());
+                    im = im.scaled(destImage.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    const auto& mini = im.scaled(QSize(3, 3), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    const float brightness = utils::averageBrightness(mini);
+                    drawCorners(im, conf.boxCornerRadius(), conf.backgroundColor());
+                    imageLoaded(index, im, brightness);
+                },
+                Qt::LowEventPriority);
         ++index;
     }
 }
 
 void ClockWidget::onImageLoaded(const int zoneIndex, const QImage& im, float brightness) {
+    const auto& conf = Config::get();
     const auto widget = mZoneWidgets[zoneIndex];
-    const auto textColor = (brightness > mConfig.darkTextThreshold()) ? mConfig.clockColorTimeDark() : mConfig.clockColorTime();
+    const auto textColor = (brightness > conf.darkTextThreshold()) ? conf.clockColorTimeDark() : conf.clockColorTime();
     widget->setHourColor(textColor);
     widget->setImage(im.scaled(widget->contentsRect().size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
@@ -121,7 +125,7 @@ void ClockWidget::updateTime() {
     mSecondWidget.setHours(secondStr);
 
     for (int i = 0, len = mZoneWidgets.count(); i < len; i++) {
-        const auto& def = mConfig.locations()[i];
+        const auto& def = Config::get().locations()[i];
         const auto widget = mZoneWidgets[i];
         auto dt = QDateTime::currentDateTimeUtc().toTimeZone(def->timezone);
         auto hourStr = dt.time().toString("HH");

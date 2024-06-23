@@ -10,7 +10,7 @@
 class TileWidget final : public QWidget {
     Q_OBJECT
 public:
-    explicit TileWidget(const Config& conf, const apdata::Location* clock = nullptr);
+    explicit TileWidget(const apdata::Location* clock = nullptr);
     [[nodiscard]] const apdata::Location* location() const;
     void setHours(const QString& h);
     void setHourColor(const QColor& col);
@@ -28,7 +28,6 @@ private:
     static void setForegroundColor(QWidget& widget, const QColor& color);
     const apdata::Location* mLocation = nullptr;
 
-    const Config& mConfig;
     QVBoxLayout mLayout;
     QImage mImage;
     ScalingLabel mHoursLabel;

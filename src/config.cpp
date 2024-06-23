@@ -13,7 +13,7 @@ constexpr auto airportsPath = ":/airports.csv";// from resources.qrc
 
 QJsonValue jChild(const QJsonObject& obj, const QString& key) {
     if (!obj.contains(key))
-        qFatal("Expected '%s'", key.toStdString().c_str());
+        utils::ERR_AND_EXIT("Expected '%1'", key);
 
     return obj[key];
 }
@@ -21,33 +21,45 @@ QJsonValue jChild(const QJsonObject& obj, const QString& key) {
 QJsonArray jArray(const QJsonObject& obj, const QString& key) {
     const QJsonValue child = jChild(obj, key);
     if (!child.isArray())
-        qFatal("Not an array: '%s'", key.toStdString().c_str());
+        utils::ERR_AND_EXIT("Not an array: '%1'", key);
     return child.toArray();
 }
 
 QJsonObject jObject(const QJsonObject& obj, const QString& key) {
     const QJsonValue child = jChild(obj, key);
     if (!child.isObject())
-        qFatal("Not an object: '%s'", key.toStdString().c_str());
+        utils::ERR_AND_EXIT("Not an object: '%1'", key);
     return child.toObject();
 }
+
 QString j_QString(const QJsonObject& obj, const QString& key) {
     const QJsonValue child = jChild(obj, key);
     if (!child.isString())
-        qFatal("Not a string: '%s'", key.toStdString().c_str());
+        utils::ERR_AND_EXIT("Not a string: '%1'", key);
     return child.toString();
 }
 
 double j_double(const QJsonObject& obj, const QString& key) {
     const QJsonValue child = jChild(obj, key);
     if (!child.isDouble())
-        qFatal("Not a number: '%s'", key.toStdString().c_str());
+        utils::ERR_AND_EXIT("Not a number: '%1'", key);
     return child.toDouble();
+}
+
+double j_float(const QJsonObject& obj, const QString& key) {
+    return j_double(obj, key);
 }
 
 int j_int(const QJsonObject& obj, const QString& key) {
     const double d = j_double(obj, key);
     return qRound(d);
+}
+
+int j_bool(const QJsonObject& obj, const QString& key) {
+    const QJsonValue child = jChild(obj, key);
+    if (!child.isBool())
+        utils::ERR_AND_EXIT("Not a boolean: '%1'", key);
+    return child.toBool();
 }
 
 QColor j_QColor(const QJsonObject& obj, const QString& key) {
@@ -60,6 +72,11 @@ QString absPath(QString filePath) {
 
 Config::Config() {
     loadConfig();
+}
+
+Config& Config::get() {
+    static Config instance;
+    return instance;
 }
 
 const apdata::LocationList& Config::locations() const {
@@ -94,6 +111,10 @@ void Config::loadConfig() {
         utils::ERR_AND_EXIT("Failed to load airport data");
 
     // Style
+    read_startFullscreen(jRoot);
+    read_windowWidth(jRoot);
+    read_windowHeight(jRoot);
+
     read_backgroundColor(jRoot);
     read_clockColorTime(jRoot);
     read_clockColorTimeDark(jRoot);
@@ -103,8 +124,14 @@ void Config::loadConfig() {
     read_darkTextThreshold(jRoot);
     read_fontName(jRoot);
     read_margin(jRoot);
+    read_tileMargin(jRoot);
     read_boxSpacing(jRoot);
     read_boxCornerRadius(jRoot);
+    read_cameraFov(jRoot);
+    read_stretchDown(jRoot);
+    read_toneMap(jRoot);
+    read_subjectHeight(jRoot);
+
     read_clockTimerInterval(jRoot);
     read_imageTimerInterval(jRoot);
     read_skyResolutionScale(jRoot);

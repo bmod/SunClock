@@ -12,11 +12,19 @@ void utils::ERR_AND_EXIT(const QString& message) {
 }
 
 void utils::ERR_AND_EXIT(const QString& message, const QString& a1) {
-    utils::ERR_AND_EXIT(QString(message).arg(a1));
+    ERR_AND_EXIT(QString(message).arg(a1));
 }
 
 void utils::ERR_AND_EXIT(const QString& message, const QString& a1, const QString& a2) {
-    utils::ERR_AND_EXIT(QString(message).arg(a1, a2));
+    ERR_AND_EXIT(QString(message).arg(a1, a2));
+}
+
+void utils::ASSERT_OR_EXIT(bool condition, const QString& message) {
+    if (!condition) ERR_AND_EXIT(message);
+}
+
+void utils::ASSERT_OR_EXIT(bool condition, const QString& message, const QString& a1) {
+    if (!condition) ERR_AND_EXIT(message, a1);
 }
 
 float utils::averageBrightness(const QImage& im) {

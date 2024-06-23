@@ -5,7 +5,10 @@
       "AMS",
       "HKG",
       "SYD"
-    ]
+    ],
+    "startFullscreen": false,
+    "windowWidth": 600,
+    "windowHeight": 340
   },
   "style": {
     "fontName": "DM Mono Medium",
@@ -17,8 +20,13 @@
     "clockColorSeconds": "#444",
     "darkTextThreshold": 0.55,
     "margin": 4,
+    "tileMargin": 16,
     "boxSpacing": 16,
-    "boxCornerRadius": 16
+    "boxCornerRadius": 16,
+    "cameraFov": 90,
+    "stretchDown": 0.7,
+    "toneMap": true,
+    "subjectHeight": 1
   },
   "logic": {
     "clockTimerInterval": 1,

@@ -7,16 +7,15 @@
 #include <QThreadPool>
 #include <suncalc.h>
 
-TileWidget::TileWidget(const Config& conf, const apdata::Location* clock)
-    : mConfig(conf),
-      mLocation(clock) {
+TileWidget::TileWidget(const apdata::Location* clock)
+    : mLocation(clock) {
     mImage.setColorSpace(QColorSpace::NamedColorSpace::SRgb);
     clearImage();
 
-    mLayout.setContentsMargins(10, 0, 0, 0);
+    int m = Config::get().margin();
+    mLayout.setContentsMargins(m, m, m, m);
     mLayout.setSpacing(0);
     setLayout(&mLayout);
-
 
     mHoursLabel.setAlignment(Qt::AlignRight);
 
@@ -31,6 +30,7 @@ const apdata::Location* TileWidget::location() const {
 void TileWidget::setHours(const QString& h) {
     mHoursLabel.setText(h);
 }
+
 void TileWidget::setHourColor(const QColor& col) {
     setForegroundColor(mHoursLabel, col);
 }
@@ -38,6 +38,7 @@ void TileWidget::setHourColor(const QColor& col) {
 void TileWidget::setText(const QString& text) {
     mLocationLabel.setText(text);
 }
+
 void TileWidget::setLocationColor(const QColor& col) {
     setForegroundColor(mLocationLabel, col);
 }
@@ -62,9 +63,9 @@ void TileWidget::paintEvent(QPaintEvent* event) {
     QPainter ptr(this);
     ptr.setRenderHint(QPainter::SmoothPixmapTransform);
     ptr.setPen(Qt::NoPen);
-    ptr.setBrush(mConfig.backgroundColor());
+    ptr.setBrush(Config::get().backgroundColor());
     const auto rec = rect().adjusted(0, 0, -1, -1);
-    constexpr int radius = 16;
+    const int radius = Config::get().boxCornerRadius();
     ptr.drawRoundedRect(rec, radius, radius);
     if (!mImage.isNull()) {
         ptr.drawImage(contentsRect(), mImage);
@@ -82,8 +83,4 @@ void TileWidget::clearImage() {
 
 void TileWidget::setForegroundColor(QWidget& widget, const QColor& color) {
     widget.setStyleSheet("color: " + color.name());
-    // QPalette pal(widget.palette());
-    // pal.setColor(QPalette::Text, Qt::red);
-    // widget.setPalette(pal);
-    // widget.update();
 }

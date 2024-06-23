@@ -23,16 +23,22 @@ static QJsonArray jArray(const QJsonObject& obj, const QString& key);
 static QJsonObject jObject(const QJsonObject& obj, const QString& key);
 static QString j_QString(const QJsonObject& obj, const QString& key);
 static double j_double(const QJsonObject& obj, const QString& key);
+static double j_float(const QJsonObject& obj, const QString& key);
 static int j_int(const QJsonObject& obj, const QString& key);
+static int j_bool(const QJsonObject& obj, const QString& key);
 static QColor j_QColor(const QJsonObject& obj, const QString& key);
 
 
 class Config : public QObject {
     Q_OBJECT
-public:
     Config();
+public:
+    static Config& get();
+    [[nodiscard]] const apdata::LocationList& locations() const;
 
-    const apdata::LocationList& locations() const;
+    SETTING(bool, startFullscreen, general);
+    SETTING(int, windowWidth, general);
+    SETTING(int, windowHeight, general);
 
     SETTING(QColor, backgroundColor, style)
     SETTING(QColor, clockColorTime, style);
@@ -40,14 +46,20 @@ public:
     SETTING(QColor, clockColorLocation, style);
     SETTING(QColor, clockColorMinutes, style);
     SETTING(QColor, clockColorSeconds, style);
-    SETTING(double, darkTextThreshold, style);
+    SETTING(float, darkTextThreshold, style);
     SETTING(QString, fontName, style)
     SETTING(int, margin, style)
+    SETTING(int, tileMargin, style)
     SETTING(int, boxSpacing, style)
     SETTING(int, boxCornerRadius, style)
-    SETTING(double, clockTimerInterval, logic)
-    SETTING(double, imageTimerInterval, logic)
-    SETTING(double, skyResolutionScale, logic)
+    SETTING(float, cameraFov, style)
+    SETTING(float, stretchDown, style)
+    SETTING(bool, toneMap, style)
+    SETTING(float, subjectHeight, style)
+
+    SETTING(float, clockTimerInterval, logic)
+    SETTING(float, imageTimerInterval, logic)
+    SETTING(float, skyResolutionScale, logic)
     SETTING(int, skySamples, logic)
 
 private:

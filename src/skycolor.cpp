@@ -56,7 +56,7 @@
 #define M_PI (3.14159265358979323846f)
 #endif
 
-float clamp(float v, float min=0, float max=1) {
+float clamp(float v, float min = 0, float max = 1) {
     if (v < min) return min;
     if (v > max) return max;
     return v;
@@ -68,14 +68,8 @@ float clamp(float v, float min=0, float max=1) {
 // [/comment]
 class Atmosphere {
 public:
-    Atmosphere(
-            Vec3f sd = Vec3f(0, 1, 0),
-            float er = 6360e3, float ar = 6420e3,
-            float hr = 7994, float hm = 1200) : sunDirection(sd),
-                                                earthRadius(er),
-                                                atmosphereRadius(ar),
-                                                Hr(hr),
-                                                Hm(hm) {}
+    Atmosphere(Vec3f sd = Vec3f(0, 1, 0), float er = 6360e3, float ar = 6420e3, float hr = 7994, float hm = 1200)
+        : sunDirection(sd), earthRadius(er), atmosphereRadius(ar), Hr(hr), Hm(hm) {}
 
     Vec3f computeIncidentLight(const Vec3f& orig, const Vec3f& dir, float tmin, float tmax) const;
 
@@ -101,11 +95,11 @@ bool solveQuadratic(float a, float b, float c, float& x1, float& x2) {
         x2 = sqrtf(-c / a);
         return true;
     }
-    float discr = b * b - 4 * a * c;
+    const float discr = b * b - 4 * a * c;
 
     if (discr < 0) return false;
 
-    float q = (b < 0.f) ? -0.5f * (b - sqrtf(discr)) : -0.5f * (b + sqrtf(discr));
+    const float q = (b < 0.f) ? -0.5f * (b - sqrtf(discr)) : -0.5f * (b + sqrtf(discr));
     x1 = q / a;
     x2 = c / q;
 
@@ -117,9 +111,9 @@ bool solveQuadratic(float a, float b, float c, float& x1, float& x2) {
 // [/comment]
 bool raySphereIntersect(const Vec3f& orig, const Vec3f& dir, const float& radius, float& t0, float& t1) {
     // They ray dir is normalized so A = 1
-    float A = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
-    float B = 2 * (dir.x * orig.x + dir.y * orig.y + dir.z * orig.z);
-    float C = orig.x * orig.x + orig.y * orig.y + orig.z * orig.z - radius * radius;
+    const float A = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
+    const float B = 2 * (dir.x * orig.x + dir.y * orig.y + dir.z * orig.z);
+    const float C = orig.x * orig.x + orig.y * orig.y + orig.z * orig.z - radius * radius;
 
     if (!solveQuadratic(A, B, C, t0, t1)) return false;
 
@@ -139,21 +133,22 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
     if (!raySphereIntersect(orig, dir, atmosphereRadius, t0, t1) || t1 < 0) return 0;
     if (t0 > tmin && t0 > 0) tmin = t0;
     if (t1 < tmax) tmax = t1;
-    uint32_t numSamples = 16;
-    uint32_t numSamplesLight = 8;
-    float segmentLength = (tmax - tmin) / numSamples;
+    const uint32_t numSamples = 16;
+    const uint32_t numSamplesLight = 8;
+    const float segmentLength = (tmax - tmin) / numSamples;
     float tCurrent = tmin;
     Vec3f sumR(0), sumM(0);// mie and rayleigh contribution
     float opticalDepthR = 0, opticalDepthM = 0;
-    float mu = dot(dir,
-                   sunDirection);// mu in the paper which is the cosine of the angle between the sun direction and the ray direction
-    float phaseR = 3.f / (16.f * M_PI) * (1 + mu * mu);
-    float g = 0.76f;
-    float phaseM = 3.f / (8.f * M_PI) * ((1.f - g * g) * (1.f + mu * mu)) /
+    const float mu = dot(
+            dir,
+            sunDirection);// mu in the paper which is the cosine of the angle between the sun direction and the ray direction
+    const float phaseR = 3.f / (16.f * M_PI) * (1 + mu * mu);
+    const float g = 0.76f;
+    const float phaseM = 3.f / (8.f * M_PI) * ((1.f - g * g) * (1.f + mu * mu)) /
                    ((2.f + g * g) * pow(1.f + g * g - 2.f * g * mu, 1.5f));
     for (uint32_t i = 0; i < numSamples; ++i) {
         Vec3f samplePosition = orig + (tCurrent + segmentLength * 0.5f) * dir;
-        float height = samplePosition.length() - earthRadius;
+        const float height = samplePosition.length() - earthRadius;
         // compute optical depth for light
         float hr = exp(-height / Hr) * segmentLength;
         float hm = exp(-height / Hm) * segmentLength;
@@ -167,14 +162,15 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
         uint32_t j;
         for (j = 0; j < numSamplesLight; ++j) {
             Vec3f samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5f) * sunDirection;
-            float heightLight = samplePositionLight.length() - earthRadius;
+            const float heightLight = samplePositionLight.length() - earthRadius;
             if (heightLight < 0) break;
             opticalDepthLightR += exp(-heightLight / Hr) * segmentLengthLight;
             opticalDepthLightM += exp(-heightLight / Hm) * segmentLengthLight;
             tCurrentLight += segmentLengthLight;
         }
         if (j == numSamplesLight) {
-            Vec3f tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
+            const Vec3f tau =
+                    betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
             Vec3f attenuation(exp(-tau.x), exp(-tau.y), exp(-tau.z));
             sumR += attenuation * hr;
             sumM += attenuation * hm;
@@ -190,25 +186,26 @@ Vec3f Atmosphere::computeIncidentLight(const Vec3f& orig, const Vec3f& dir, floa
 }
 
 QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
-    Atmosphere atmosphere(sunDir);
+    const Atmosphere atmosphere(sunDir);
 
     QImage im(dim.width(), dim.height(), QImage::Format_RGB32);
-    int width = im.width();
-    int height = im.height();
+    const int width = im.width();
+    const int height = im.height();
 
     Vec3f *image = new Vec3f[width * height], *p = image;
     memset(image, 0x0, sizeof(Vec3f) * width * height);
     for (int j = 0; j < height; ++j) {
-        float y = 2.f * (j + 0.5f) / float(height - 1) - 1.f;
+        const float y = 2.f * (j + 0.5f) / float(height - 1) - 1.f;
         for (int i = 0; i < width; ++i, ++p) {
-            float x = 2.f * (i + 0.5f) / float(width - 1) - 1.f;
-            float z2 = x * x + y * y;
+            const float x = 2.f * (i + 0.5f) / float(width - 1) - 1.f;
+            const float z2 = x * x + y * y;
             if (z2 <= 1) {
-                float phi = std::atan2(y, x);
-                float theta = std::acos(1 - z2);
+                const float phi = std::atan2(y, x);
+                const float theta = std::acos(1 - z2);
                 Vec3f dir(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi));
                 // 1 meter above sea level
-                auto light = atmosphere.computeIncidentLight(Vec3f(0, atmosphere.earthRadius + 1, 0), dir, 0, kInfinity);
+                const auto light =
+                        atmosphere.computeIncidentLight(Vec3f(0, atmosphere.earthRadius + 1, 0), dir, 0, kInfinity);
                 im.setPixelColor(i, j, QColor::fromRgbF(light.x, light.y, light.z));
             }
         }
@@ -222,30 +219,31 @@ void clamp(Vec3f& p) {
     p.y = clamp(p.y);
     p.z = clamp(p.z);
 }
-void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples, float subjectHeight, float stretchDown) {
-    Atmosphere atmosphere(sunDir);
+
+void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples,
+                            float subjectHeight, float stretchDown) {
+    const Atmosphere atmosphere(sunDir);
 
     const float width = im.width();
     const float height = im.height();
     const float aspectRatio = width / height;
     const float angle = std::tan(fov * M_PI / 180 * 0.5f);
     const int numPixelSamples = numSamples;
-    Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0);// camera position
+    const Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0);// camera position
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(0, 1);// to generate random floats in the range [0:1]
 
 
-    for (unsigned yy = 0; yy < height; ++yy) {
-        auto ty = yy * stretchDown;
-        auto y = qRound(ty);
+    for (int yy = 0; yy < height; ++yy) {
+        const auto ty = yy * stretchDown;
+        const auto y = qRound(ty);
         for (unsigned x = 0; x < width; ++x) {
             Vec3f p;
             for (unsigned m = 0; m < numPixelSamples; ++m) {
                 for (unsigned n = 0; n < numPixelSamples; ++n) {
-                    float rayx = (2 * (x + (m + distribution(generator)) / numPixelSamples) / width - 1) *
-                                 aspectRatio * angle;
-                    float rayy =
-                            (1 - (y + (n + distribution(generator)) / numPixelSamples) / height * 2) * angle;
+                    const float rayx = (2 * (x + (m + distribution(generator)) / numPixelSamples) / width - 1) *
+                                       aspectRatio * angle;
+                    const float rayy = (1 - (y + (n + distribution(generator)) / numPixelSamples) / height * 2) * angle;
                     Vec3f dir(rayx, rayy, -1);
                     normalize(dir);
                     // [comment]
@@ -281,8 +279,7 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
         }
     }
 
-    if (!toneMap)
-        return;
+    if (!toneMap) return;
 
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
