@@ -4,77 +4,9 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QThreadPool>
-#include <QtDebug>
 #include <skycolor.h>
 #include <suncalc.h>
-
-Cellwidget::Cellwidget(const Config& conf, const apdata::Location* clock)
-    : mConfig(conf),
-      mLocation(clock) {
-    // mImage.setColorSpace(QColorSpace::NamedColorSpace::SRgbLinear);
-    mImage.setColorSpace(QColorSpace::NamedColorSpace::SRgb);
-    clearImage();
-
-    mLayout.setContentsMargins(10, 0, 0, 0);
-    mLayout.setSpacing(0);
-    setLayout(&mLayout);
-
-
-    mTimeLabel.setAlignment(Qt::AlignRight);
-
-    mLayout.addWidget(&mTimeLabel, qRound(mTimeVsZoneWeight * 1000));
-    mLayout.addWidget(&mZoneLabel, qRound((1 - mTimeVsZoneWeight) * 1000));
-}
-
-const apdata::Location* Cellwidget::location() const {
-    return mLocation;
-}
-
-void Cellwidget::setTime(const QString& time) {
-    mTimeLabel.setText(time);
-}
-
-void Cellwidget::setText(const QString& text) {
-    mZoneLabel.setText(text);
-}
-
-QImage Cellwidget::image() {
-    if (mImage.isNull()) {
-        const QImage im(contentsRect().size(), QImage::Format_RGB32);
-        mImage = im;
-    }
-    return mImage;
-}
-
-void Cellwidget::setImage(const QImage& im) {
-    if (mImage == im)
-        return;
-    mImage = im;
-    update();
-}
-
-void Cellwidget::paintEvent(QPaintEvent* event) {
-    QWidget::paintEvent(event);
-    QPainter ptr(this);
-    ptr.setRenderHint(QPainter::SmoothPixmapTransform);
-    ptr.setPen(Qt::NoPen);
-    ptr.setBrush(mConfig.backgroundColor());
-    const auto rec = rect().adjusted(0, 0, -1, -1);
-    constexpr int radius = 16;
-    ptr.drawRoundedRect(rec, radius, radius);
-    if (!mImage.isNull()) {
-        ptr.drawImage(contentsRect(), mImage);
-    }
-}
-
-void Cellwidget::resizeEvent(QResizeEvent* event) {
-    QWidget::resizeEvent(event);
-    clearImage();
-}
-
-void Cellwidget::clearImage() {
-    mImage = QImage(QSize(), QImage::Format_RGB32);
-}
+#include <utils.h>
 
 ClockWidget::ClockWidget(const Config& config)
     : mConfig(config), mMinuteWidget(config), mSecondWidget(config) {
@@ -83,10 +15,14 @@ ClockWidget::ClockWidget(const Config& config)
     mLayout.setSpacing(config.boxSpacing());
     setLayout(&mLayout);
 
+    mMinuteWidget.setHourColor(config.clockColorMinutes());
+    mSecondWidget.setHourColor(config.clockColorSeconds());
+
     for (auto& loc: config.locations()) {
-        auto block = new Cellwidget(config, loc.get());
-        block->setStyleSheet("color: white");
-        mZoneWidgets << block;
+        auto cell = new TileWidget(config, loc.get());
+        cell->setLocationColor(config.clockColorLocation());
+        cell->setHourColor(config.clockColorTime());
+        mZoneWidgets << cell;
     }
 
     mLayout.addWidget(mZoneWidgets[0], 0, 0);
@@ -95,9 +31,6 @@ ClockWidget::ClockWidget(const Config& config)
     mLayout.addWidget(mZoneWidgets[3], 1, 1);
     mLayout.addWidget(&mMinuteWidget, 0, 2);
     mLayout.addWidget(&mSecondWidget, 1, 2);
-
-    mMinuteWidget.setStyleSheet("color: #666");
-    mSecondWidget.setStyleSheet("color: #444");
 
     connect(&mTimer, &QTimer::timeout, this, &ClockWidget::updateTime);
     mTimer.setInterval(qRound(config.clockTimerInterval() * 1000));
@@ -155,35 +88,44 @@ void ClockWidget::updateImages() {
                                                    loc->latitude, loc->longitude, 10);
             const auto sunDir = sunVector(coords);
 
-            auto image = widget->image();
-            skycolor::renderCamera(sunDir, image, false);
-            drawCorners(image, mConfig.boxCornerRadius(), mConfig.backgroundColor());
-            imageLoaded(index, image);
+            const double skyResolutionScale = mConfig.skyResolutionScale();
+            const auto destImage = widget->image();
+            if (skyResolutionScale < 1)
+                qFatal("Sky resolution must be > 1");
+
+            QImage im(destImage.size() / mConfig.skyResolutionScale(), destImage.format());
+            skycolor::renderCamera(sunDir, im, false);
+            im = im.scaled(destImage.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            const auto& mini = im.scaled(QSize(3, 3), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            const float brightness = utils::averageBrightness(mini);
+            drawCorners(im, mConfig.boxCornerRadius(), mConfig.backgroundColor());
+            imageLoaded(index, im, brightness);
         },
                                              Qt::LowEventPriority);
         ++index;
     }
 }
 
-void ClockWidget::onImageLoaded(const int zoneIndex, const QImage& im) {
+void ClockWidget::onImageLoaded(const int zoneIndex, const QImage& im, float brightness) {
     const auto widget = mZoneWidgets[zoneIndex];
-    // scale image to final size, we rendered at lower resolution
+    const auto textColor = (brightness > mConfig.darkTextThreshold()) ? mConfig.clockColorTimeDark() : mConfig.clockColorTime();
+    widget->setHourColor(textColor);
     widget->setImage(im.scaled(widget->contentsRect().size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 void ClockWidget::updateTime() {
     const auto minuteStr = QDateTime::currentDateTimeUtc().toString(":mm");
-    mMinuteWidget.setTime(minuteStr);
+    mMinuteWidget.setHours(minuteStr);
 
     const auto secondStr = QDateTime::currentDateTimeUtc().toString(":ss");
-    mSecondWidget.setTime(secondStr);
+    mSecondWidget.setHours(secondStr);
 
     for (int i = 0, len = mZoneWidgets.count(); i < len; i++) {
         const auto& def = mConfig.locations()[i];
         const auto widget = mZoneWidgets[i];
         auto dt = QDateTime::currentDateTimeUtc().toTimeZone(def->timezone);
         auto hourStr = dt.time().toString("HH");
-        widget->setTime(hourStr);
+        widget->setHours(hourStr);
         widget->setText(def->iata);
     }
 }

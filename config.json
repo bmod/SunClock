@@ -1,23 +1,29 @@
 {
-  "locations": [
-    "LAX",
-    "AMS",
-    "HKG",
-    "SYD"
-  ],
+  "general": {
+    "locations": [
+      "LAX",
+      "AMS",
+      "HKG",
+      "SYD"
+    ]
+  },
   "style": {
-    "font": "DM Mono Medium",
-    "backgroundColor": "#333",
-    "clockColorTime": "#FF0",
-    "clockColorLocation": "#0F0",
+    "fontName": "DM Mono Medium",
+    "backgroundColor": "#000",
+    "clockColorTime": "#FFF",
+    "clockColorTimeDark": "#000",
+    "clockColorLocation": "#FFF",
+    "clockColorMinutes": "#666",
+    "clockColorSeconds": "#444",
+    "darkTextThreshold": 0.55,
     "margin": 16,
     "boxSpacing": 16,
-    "boxCornerRadius": 16,
-    "skyResolutionScale": 3,
-    "skySamples": 2
+    "boxCornerRadius": 16
   },
   "logic": {
     "clockTimerInterval": 3,
-    "imageTimerInterval": 60
+    "imageTimerInterval": 60,
+    "skyResolutionScale": 3,
+    "skySamples": 2
   }
 }

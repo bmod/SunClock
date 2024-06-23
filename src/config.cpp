@@ -1,12 +1,12 @@
 #include "config.h"
 
-#include <QApplication>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
-#include <QtDebug>
+
+#include "utils.h"
 
 constexpr auto configFilePath = "config.json";
 constexpr auto airportsPath = ":/airports.csv";// from resources.qrc
@@ -25,6 +25,12 @@ QJsonArray jArray(const QJsonObject& obj, const QString& key) {
     return child.toArray();
 }
 
+QJsonObject jObject(const QJsonObject& obj, const QString& key) {
+    const QJsonValue child = jChild(obj, key);
+    if (!child.isObject())
+        qFatal("Not an object: '%s'", key.toStdString().c_str());
+    return child.toObject();
+}
 QString j_QString(const QJsonObject& obj, const QString& key) {
     const QJsonValue child = jChild(obj, key);
     if (!child.isString())
@@ -40,53 +46,67 @@ double j_double(const QJsonObject& obj, const QString& key) {
 }
 
 int j_int(const QJsonObject& obj, const QString& key) {
-    double d = j_double(obj, key);
+    const double d = j_double(obj, key);
     return qRound(d);
 }
 
-const char* absPath(QString filePath) {
-    return QFileInfo(configFilePath).absoluteFilePath().toStdString().c_str();
+QColor j_QColor(const QJsonObject& obj, const QString& key) {
+    return j_QString(obj, key);
+}
+
+QString absPath(QString filePath) {
+    return QFileInfo(filePath).absoluteFilePath();
 }
 
 Config::Config() {
     loadConfig();
 }
 
+const apdata::LocationList& Config::locations() const {
+    return mLocations;
+}
+
 void Config::loadConfig() {
-    if (!QFile::exists(configFilePath)) {
-        qFatal("File not found: %s", absPath(configFilePath));
-    }
+    if (!QFile::exists(configFilePath))
+        utils::ERR_AND_EXIT("File not found: %1", absPath(configFilePath));
 
     QFile configFile(configFilePath);
 
-    if (!configFile.open(QIODevice::ReadOnly)) {
-        qFatal("Failed to open %s", absPath(configFilePath));
-    }
+    if (!configFile.open(QIODevice::ReadOnly))
+        utils::ERR_AND_EXIT("Failed to open %1", absPath(configFilePath));
 
-    auto data = configFile.readAll();
+    const auto data = configFile.readAll();
 
     QJsonParseError err;
-    auto doc = QJsonDocument::fromJson(data, &err);
+    const auto doc = QJsonDocument::fromJson(data, &err);
+    if (err.error)
+        utils::ERR_AND_EXIT("Failed to parse Json %1: %2", absPath(configFilePath), err.errorString());
 
-    auto jRoot = doc.object();
+    const auto jRoot = doc.object();
 
     // Locations
-    auto jLocations = jArray(jRoot, "locations");
+    const auto jGeneral = jObject(jRoot, "general");
+    auto jLocations = jArray(jGeneral, "locations");
     QStringList locations;
     for (const auto& jLocation: jLocations)
         locations << jLocation.toString();
     if (!loadAirports(airportsPath, locations, mLocations))
-        qFatal("Failed to load airport data");
+        utils::ERR_AND_EXIT("Failed to load airport data");
 
     // Style
-    const auto jStyle = jRoot["style"].toObject();
-    mBackgroundColor = QColor(jStyle["backgroundColor"].toString());
-    mFontName = j_QString(jStyle, "font");
-    mMargin = j_int(jStyle, "margin");
-    mBoxSpacing = j_int(jStyle, "boxSpacing");
-    mBoxCornerRadius = j_int(jStyle, "boxCornerRadius");
-
-    const auto jLogic = jRoot["logic"].toObject();
-    mClockTimerInterval = j_double(jLogic, "clockTimerInterval");
-    mImageTimerInterval = j_double(jLogic, "imageTimerInterval");
+    read_backgroundColor(jRoot);
+    read_clockColorTime(jRoot);
+    read_clockColorTimeDark(jRoot);
+    read_clockColorLocation(jRoot);
+    read_clockColorMinutes(jRoot);
+    read_clockColorSeconds(jRoot);
+    read_darkTextThreshold(jRoot);
+    read_fontName(jRoot);
+    read_margin(jRoot);
+    read_boxSpacing(jRoot);
+    read_boxCornerRadius(jRoot);
+    read_clockTimerInterval(jRoot);
+    read_imageTimerInterval(jRoot);
+    read_skyResolutionScale(jRoot);
+    read_skySamples(jRoot);
 }

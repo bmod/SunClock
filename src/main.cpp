@@ -5,7 +5,7 @@
 
 #include "clockwidget.h"
 
-#include <config.h>
+#include "config.h"
 
 class ClockWindow final : public QMainWindow {
 public:
