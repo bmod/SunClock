@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.18)
 project(sunclock VERSION 0.0.1 LANGUAGES CXX)
 
 include(cmake/targetarch.cmake)
