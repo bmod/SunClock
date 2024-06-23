@@ -6,7 +6,7 @@
       "HKG",
       "SYD"
     ],
-    "startFullscreen": false,
+    "startFullscreen": true,
     "windowWidth": 600,
     "windowHeight": 340
   },
