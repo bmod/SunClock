@@ -105,8 +105,9 @@ void Config::loadConfig() {
     const auto jGeneral = jObject(jRoot, "general");
     auto jLocations = jArray(jGeneral, "locations");
     QStringList locations;
-    for (const auto& jLocation: jLocations)
+    for (const auto& jLocation: jLocations) {
         locations << jLocation.toString();
+    }
     if (!loadAirports(airportsPath, locations, mLocations))
         utils::ERR_AND_EXIT("Failed to load airport data");
 

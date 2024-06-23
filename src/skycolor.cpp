@@ -267,10 +267,11 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
             }
             p *= 1.f / (numPixelSamples * numPixelSamples);
 
-            const float e = 1.4;
+            const float e = 2.4;
 
             clamp(p);
 
+            // Gamma correct
             p.x = 1.f - pow(1 - p.x, e);
             p.y = 1.f - pow(1 - p.y, e);
             p.z = 1.f - pow(1 - p.z, e);
@@ -290,8 +291,7 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
                 for (int c = 0; c < 3; c++)
                     p[c] = p[c] < 1.413f ? pow(p[c] * 0.38317f, 1.0f / 2.2f) : 1.0f - exp(-p[c]);
             }
-
-            // gamma correct
+            p *= 1.4;
 
             im.setPixelColor(i, j, QColor::fromRgbF(p.x, p.y, p.z));
         }

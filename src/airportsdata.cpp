@@ -38,12 +38,21 @@ bool apdata::loadAirports(const QString& filePath, const QStringList& iataList, 
     for (int i = 0; i < fieldCount; i++)
         fieldIndexes.insert(fields[i], i);
 
+
+    QMap<QString, QStringList> rowMap;
     QStringList row;
     while (qcsv::readCsvRow(inStream, &row)) {
-        const auto iata = row[fieldIndexes[Iata]];
+        const auto iata = row[fieldIndexes[Iata]].toUpper();
+
         if (!iataList.contains(iata))
             continue;
 
+        rowMap.insert(iata, row);
+
+    }
+
+    for (const auto& iata : iataList) {
+        row = rowMap[iata];
         auto ap = std::make_unique<Location>();
         ap->name = row[fieldIndexes[Name]];
         ap->iata = iata;

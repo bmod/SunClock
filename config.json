@@ -20,13 +20,13 @@
     "clockColorSeconds": "#444",
     "darkTextThreshold": 0.55,
     "margin": 4,
-    "tileMargin": 16,
+    "tileMargin": 24,
     "boxSpacing": 16,
     "boxCornerRadius": 16,
     "cameraFov": 90,
     "stretchDown": 0.7,
     "toneMap": true,
-    "subjectHeight": 1
+    "subjectHeight": 10
   },
   "logic": {
     "clockTimerInterval": 1,

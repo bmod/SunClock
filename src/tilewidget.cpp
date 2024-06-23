@@ -12,7 +12,7 @@ TileWidget::TileWidget(const apdata::Location* clock)
     mImage.setColorSpace(QColorSpace::NamedColorSpace::SRgb);
     clearImage();
 
-    int m = Config::get().margin();
+    const int m = Config::get().tileMargin();
     mLayout.setContentsMargins(m, m, m, m);
     mLayout.setSpacing(0);
     setLayout(&mLayout);
