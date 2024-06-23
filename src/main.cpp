@@ -60,10 +60,10 @@ int main(int argc, char** argv) {
     const auto& conf = Config::get();
 
     // Font
-    const auto fontFileName = ":/DMMono-Medium.ttf";
-
-    const int fontId = QFontDatabase::addApplicationFont(fontFileName);
-    utils::ASSERT_OR_EXIT(fontId >= 0, "Failed to load font: %1", fontFileName);
+    // const auto fontFileName = ":/DMMono-Medium.ttf";
+    //
+    // const int fontId = QFontDatabase::addApplicationFont(fontFileName);
+    // utils::ASSERT_OR_EXIT(fontId >= 0, "Failed to load font: %1", fontFileName);
     QApplication::setFont(conf.fontName());
     // utils::ASSERT_OR_EXIT(fams.contains(conf.fontName()), "Font family not found: %1", conf.fontName());
 
