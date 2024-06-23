@@ -94,7 +94,7 @@ void ClockWidget::updateImages() {
                     const double skyResolutionScale = conf.skyResolutionScale();
                     const auto destImage = widget->image();
 
-                    if (skyResolutionScale < 1) qFatal("Sky resolution must be > 1");
+                    utils::ASSERT_OR_EXIT(skyResolutionScale >= 1, "skyResolutionScale must be > 1");
 
                     QImage im(destImage.size() / conf.skyResolutionScale(), destImage.format());
                     skycolor::renderCamera(sunDir, im, conf.toneMap(), conf.cameraFov(), conf.skySamples(), conf.subjectHeight(), conf.stretchDown());
@@ -112,8 +112,11 @@ void ClockWidget::updateImages() {
 void ClockWidget::onImageLoaded(const int zoneIndex, const QImage& im, float brightness) {
     const auto& conf = Config::get();
     const auto widget = mZoneWidgets[zoneIndex];
-    const auto textColor = (brightness > conf.darkTextThreshold()) ? conf.clockColorTimeDark() : conf.clockColorTime();
-    widget->setHourColor(textColor);
+    // switch color based on background brightness, keep text readable
+    const bool isBright = brightness > conf.darkTextThreshold();
+    widget->setHourColor(isBright ? conf.clockColorTimeDark() : conf.clockColorTime());
+    widget->setLocationColor(isBright ? conf.clockColorLocationDark() : conf.clockColorLocation());
+
     widget->setImage(im.scaled(widget->contentsRect().size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 

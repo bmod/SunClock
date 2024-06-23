@@ -44,6 +44,7 @@ public:
     SETTING(QColor, clockColorTime, style);
     SETTING(QColor, clockColorTimeDark, style);
     SETTING(QColor, clockColorLocation, style);
+    SETTING(QColor, clockColorLocationDark, style);
     SETTING(QColor, clockColorMinutes, style);
     SETTING(QColor, clockColorSeconds, style);
     SETTING(float, darkTextThreshold, style);
