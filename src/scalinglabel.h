@@ -20,6 +20,6 @@ public:
 
 private:
     void updateFontSize();
-    qreal maximumFontSize();
+    qreal maximumFontSize() const;
     qreal mFontPrecision = 0.5;
 };

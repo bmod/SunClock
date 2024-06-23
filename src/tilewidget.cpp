@@ -4,8 +4,6 @@
 #include <QColorSpace>
 #include <QPainter>
 #include <QPainterPath>
-#include <QThreadPool>
-#include <suncalc.h>
 
 TileWidget::TileWidget(const apdata::Location* clock)
     : mLocation(clock) {

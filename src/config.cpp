@@ -66,7 +66,7 @@ QColor j_QColor(const QJsonObject& obj, const QString& key) {
     return j_QString(obj, key);
 }
 
-QString absPath(QString filePath) {
+QString absPath(const QString& filePath) {
     return QFileInfo(filePath).absoluteFilePath();
 }
 

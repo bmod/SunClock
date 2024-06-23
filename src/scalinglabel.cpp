@@ -12,16 +12,16 @@ void ScalingLabel::paintEvent(QPaintEvent* event) {
 
 void ScalingLabel::updateFontSize() {
     auto fnt = font();
-    auto fontSize = maximumFontSize();
+    const auto fontSize = maximumFontSize();
     fnt.setPointSizeF(fontSize);
     setFont(fnt);
 }
 
-qreal ScalingLabel::maximumFontSize() {
+qreal ScalingLabel::maximumFontSize() const {
     auto fnt = font();
-    auto widgetRect = contentsRect();
-    auto widgetWidth = widgetRect.width();
-    auto widgetHeight = widgetRect.height();
+    const auto widgetRect = contentsRect();
+    const auto widgetWidth = widgetRect.width();
+    const auto widgetHeight = widgetRect.height();
     auto currentSize = fnt.pointSizeF();
 
     auto step = currentSize / 2;

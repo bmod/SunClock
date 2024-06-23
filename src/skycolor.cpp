@@ -47,16 +47,13 @@
 #include <QtDebug>
 #include <algorithm>
 #include <cmath>
-
-#include <limits>
 #include <random>
-#include <utils.h>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)
 #endif
 
-float clamp(float v, float min = 0, float max = 1) {
+float clamp(const float v, const float min = 0, const float max = 1) {
     if (v < min) return min;
     if (v > max) return max;
     return v;
@@ -68,7 +65,8 @@ float clamp(float v, float min = 0, float max = 1) {
 // [/comment]
 class Atmosphere {
 public:
-    Atmosphere(Vec3f sd = Vec3f(0, 1, 0), float er = 6360e3, float ar = 6420e3, float hr = 7994, float hm = 1200)
+    explicit Atmosphere(const Vec3f sd = Vec3f(0, 1, 0), const float er = 6360e3, const float ar = 6420e3,
+                        const float hr = 7994, const float hm = 1200)
         : sunDirection(sd), earthRadius(er), atmosphereRadius(ar), Hr(hr), Hm(hm) {}
 
     Vec3f computeIncidentLight(const Vec3f& orig, const Vec3f& dir, float tmin, float tmax) const;
@@ -86,7 +84,7 @@ public:
 const Vec3f Atmosphere::betaR(3.8e-6f, 13.5e-6f, 33.1e-6f);
 const Vec3f Atmosphere::betaM(21e-6f);
 
-bool solveQuadratic(float a, float b, float c, float& x1, float& x2) {
+bool solveQuadratic(const float a, const float b, const float c, float& x1, float& x2) {
     if (b == 0) {
         // Handle special case where the two vector ray.dir and V are perpendicular
         // with V = ray.orig - sphere.centre

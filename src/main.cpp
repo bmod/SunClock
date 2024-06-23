@@ -6,8 +6,6 @@
 #include "clockwidget.h"
 #include "config.h"
 
-#include <utils.h>
-
 class ClockWindow final : public QMainWindow {
 public:
     explicit ClockWindow() {

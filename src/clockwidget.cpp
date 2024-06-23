@@ -1,12 +1,12 @@
 #include "clockwidget.h"
 
-#include <QColorSpace>
 #include <QPainter>
 #include <QPainterPath>
 #include <QThreadPool>
-#include <skycolor.h>
-#include <suncalc.h>
-#include <utils.h>
+
+#include "skycolor.h"
+#include "suncalc.h"
+#include "utils.h"
 
 ClockWidget::ClockWidget() {
     const auto& config = Config::get();
@@ -47,7 +47,7 @@ ClockWidget::ClockWidget() {
     updateImages();
 }
 
-void drawCorners(QImage& image, int r, const QColor& color) {
+void drawCorners(QImage& image, const int r, const QColor& color) {
     const int r2 = r * 2;
     const int w = image.width();
     const int h = image.height();
@@ -78,7 +78,6 @@ void drawCorners(QImage& image, int r, const QColor& color) {
 }
 
 void ClockWidget::updateImages() {
-
     int index = 0;
     for (auto widget: mZoneWidgets) {
 
@@ -109,7 +108,7 @@ void ClockWidget::updateImages() {
     }
 }
 
-void ClockWidget::onImageLoaded(const int zoneIndex, const QImage& im, float brightness) {
+void ClockWidget::onImageLoaded(const int zoneIndex, const QImage& im, const float brightness) {
     const auto& conf = Config::get();
     const auto widget = mZoneWidgets[zoneIndex];
     // switch color based on background brightness, keep text readable
