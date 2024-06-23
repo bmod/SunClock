@@ -42,19 +42,25 @@
 //#endif
 
 #include <QApplication>
+#include <QColorSpace>
 #include <QPixmap>
 #include <QtDebug>
-#include <QColorSpace>
 #include <algorithm>
 #include <cmath>
 
 #include <limits>
 #include <random>
+#include <utils.h>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)
 #endif
 
+float clamp(float v, float min=0, float max=1) {
+    if (v < min) return min;
+    if (v > max) return max;
+    return v;
+}
 
 // [comment]
 // The atmosphere class. Stores data about the planetory body (its radius), the atmosphere itself
@@ -211,8 +217,12 @@ QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
 }
 
 
-
-void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples, float subjectHeight) {
+void clamp(Vec3f& p) {
+    p.x = clamp(p.x);
+    p.y = clamp(p.y);
+    p.z = clamp(p.z);
+}
+void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples, float subjectHeight, float stretchDown) {
     Atmosphere atmosphere(sunDir);
 
     const float width = im.width();
@@ -224,7 +234,6 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
     std::default_random_engine generator;
     std::uniform_real_distribution<float> distribution(0, 1);// to generate random floats in the range [0:1]
 
-    float stretchDown = 0.499;
 
     for (unsigned yy = 0; yy < height; ++yy) {
         auto ty = yy * stretchDown;
@@ -259,6 +268,15 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
                 }
             }
             p *= 1.f / (numPixelSamples * numPixelSamples);
+
+            const float e = 1.4;
+
+            clamp(p);
+
+            p.x = 1.f - pow(1 - p.x, e);
+            p.y = 1.f - pow(1 - p.y, e);
+            p.z = 1.f - pow(1 - p.z, e);
+
             im.setPixelColor(x, qRound(ty / stretchDown), QColor::fromRgbF(p.x, p.y, p.z));
         }
     }
@@ -276,7 +294,7 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
                     p[c] = p[c] < 1.413f ? pow(p[c] * 0.38317f, 1.0f / 2.2f) : 1.0f - exp(-p[c]);
             }
 
-            p *= 1.4;
+            // gamma correct
 
             im.setPixelColor(i, j, QColor::fromRgbF(p.x, p.y, p.z));
         }

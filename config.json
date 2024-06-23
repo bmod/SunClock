@@ -16,13 +16,13 @@
     "clockColorMinutes": "#666",
     "clockColorSeconds": "#444",
     "darkTextThreshold": 0.55,
-    "margin": 16,
+    "margin": 4,
     "boxSpacing": 16,
     "boxCornerRadius": 16
   },
   "logic": {
-    "clockTimerInterval": 3,
-    "imageTimerInterval": 60,
+    "clockTimerInterval": 1,
+    "imageTimerInterval": 300,
     "skyResolutionScale": 3,
     "skySamples": 2
   }

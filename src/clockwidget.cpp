@@ -94,7 +94,7 @@ void ClockWidget::updateImages() {
                 qFatal("Sky resolution must be > 1");
 
             QImage im(destImage.size() / mConfig.skyResolutionScale(), destImage.format());
-            skycolor::renderCamera(sunDir, im, false);
+            skycolor::renderCamera(sunDir, im, false, 90, 2, 1, 0.6);
             im = im.scaled(destImage.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             const auto& mini = im.scaled(QSize(3, 3), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             const float brightness = utils::averageBrightness(mini);
