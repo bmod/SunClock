@@ -16,7 +16,7 @@ if (MSVC)
     add_compile_options(/Zc:__cplusplus /permissive-)
 endif ()
 
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Concurrent OpenGL Multimedia MultimediaWidgets)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Concurrent)
 get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
 get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
 
@@ -29,7 +29,7 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 
-set(QT_LIBS Qt5::Core Qt5::Widgets Qt5::Concurrent Qt5::OpenGL Qt5::Multimedia Qt5::MultimediaWidgets)
+set(QT_LIBS Qt5::Core Qt5::Widgets Qt5::Concurrent)
 target_link_libraries(${PROJECT_NAME} ${QT_LIBS})
 
 # Core libraries, for windows
