@@ -11,7 +11,7 @@
     "windowHeight": 340
   },
   "style": {
-    "fontName": "DM Mono Medium",
+    "fontName": "DM Mono",
     "backgroundColor": "#000",
     "clockColorTime": "#FFF",
     "clockColorTimeDark": "#000",

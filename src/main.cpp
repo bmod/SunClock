@@ -65,10 +65,12 @@ int main(int argc, char** argv) {
         utils::ERR_AND_EXIT("Font resource does not exist: %1", fontFileName);
         return -1;
     }
+
     const int fontId = QFontDatabase::addApplicationFont(fontFileName);
-    qDebug() << "Font id" << fontId;
-    utils::ASSERT_OR_EXIT(fontId >= 0, "Failed to load font: %1", fontFileName);
-    qDebug() << "Setting font" << conf.fontName();
+    if (fontId < 0) {
+        utils::ERR_AND_EXIT( "Failed to load font: %1", fontFileName);
+        return -1;
+    }
     QApplication::setFont(conf.fontName());
 
     // Style
