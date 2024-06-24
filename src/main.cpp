@@ -66,7 +66,9 @@ int main(int argc, char** argv) {
         return -1;
     }
     const int fontId = QFontDatabase::addApplicationFont(fontFileName);
+    qDebug() << "Font id" << fontId;
     utils::ASSERT_OR_EXIT(fontId >= 0, "Failed to load font: %1", fontFileName);
+    qDebug() << "Setting font" << conf.fontName();
     QApplication::setFont(conf.fontName());
 
     // Style
