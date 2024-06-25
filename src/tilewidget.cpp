@@ -56,6 +56,10 @@ void TileWidget::setImage(const QImage& im) {
     update();
 }
 
+ScalingLabel& TileWidget::hoursLabel() { return mHoursLabel; }
+
+ScalingLabel& TileWidget::locationLabel() { return mLocationLabel; }
+
 void TileWidget::paintEvent(QPaintEvent* event) {
     QWidget::paintEvent(event);
     QPainter ptr(this);

@@ -16,7 +16,9 @@ ClockWidget::ClockWidget() {
     setLayout(&mLayout);
 
     mMinuteWidget.setHourColor(config.clockColorMinutes());
+    mMinuteWidget.hoursLabel().setAlignment(Qt::AlignLeft);
     mSecondWidget.setHourColor(config.clockColorSeconds());
+    mSecondWidget.hoursLabel().setAlignment(Qt::AlignLeft);
 
     for (auto& loc: config.locations()) {
         auto cell = new TileWidget(loc.get());

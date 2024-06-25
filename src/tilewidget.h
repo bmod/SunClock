@@ -18,6 +18,8 @@ public:
     void setLocationColor(const QColor& col);
     [[nodiscard]] QImage image();
     void setImage(const QImage& im);
+    ScalingLabel& hoursLabel();
+    ScalingLabel& locationLabel();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
