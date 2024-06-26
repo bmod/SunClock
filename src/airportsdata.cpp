@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QtDebug>
 
+#include "csv.h"
+
 static const QString Name = "name";
 static const QString Iata = "iata_code";
 static const QString Latitude = "latitude_deg";
