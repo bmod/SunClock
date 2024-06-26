@@ -47,6 +47,7 @@
 #include <QtDebug>
 #include <algorithm>
 #include <cmath>
+#include <qmath.h>
 #include <random>
 #include <utils.h>
 
@@ -215,6 +216,47 @@ QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
     return im;
 }
 
+void do_work(bool toneMap, float gamma, const Atmosphere atmosphere, const float width, const float height,
+             const float aspectRatio, const float angle, const int numPixelSamples, const Vec3f orig,
+             std::default_random_engine generator, std::uniform_real_distribution<float> distribution, const int y,
+             unsigned x, Vec3f& p) {
+    for (unsigned m = 0; m < numPixelSamples; ++m) {
+        for (unsigned n = 0; n < numPixelSamples; ++n) {
+            const float rayx =
+                    (2 * (x + (m + distribution(generator)) / numPixelSamples) / width - 1) * aspectRatio * angle;
+            const float rayy = (1 - (y + (n + distribution(generator)) / numPixelSamples) / height * 2) * angle;
+            Vec3f dir(rayx, rayy, -1);
+            normalize(dir);
+            // [comment]
+            // Does the ray intersect the planetory body? (the intersection test is against the Earth here
+            // not against the atmosphere). If the ray intersects the Earth body and that the intersection
+            // is ahead of us, then the ray intersects the planet in 2 points, t0 and t1. But we
+            // only want to comupute the atmosphere between t=0 and t=t0 (where the ray hits
+            // the Earth first). If the viewing ray doesn't hit the Earth, or course the ray
+            // is then bounded to the range [0:INF]. In the method computeIncidentLight() we then
+            // compute where this primary ray intersects the atmosphere and we limit the max t range
+            // of the ray to the point where it leaves the atmosphere.
+            // [/comment]
+            float t0, t1, tMax = kInfinity;
+            if (raySphereIntersect(orig, dir, atmosphere.earthRadius, t0, t1) && t1 > 0) tMax = std::max(0.f, t0);
+            // [comment]
+            // The *viewing or camera ray* is bounded to the range [0:tMax]
+            // [/comment]
+            p += atmosphere.computeIncidentLight(orig, dir, 0, tMax);
+        }
+    }
+    p *= 1.f / qPow(numPixelSamples, 2);
+
+    utils::clamp(p);// never exceed range, will look broken
+
+    utils::gammaCorrect(p, gamma);
+
+    if (toneMap) applyToneMap(p);
+
+    p *= 1.4;// make things a little brighter for sunsets
+
+    utils::clamp(p);// never exceed range, will look broken
+}
 void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples,
                             float subjectHeight, float stretchDown, float gamma) {
     const Atmosphere atmosphere(sunDir);
@@ -222,7 +264,7 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
     const float width = im.width();
     const float height = im.height();
     const float aspectRatio = width / height;
-    const float angle = std::tan(fov * M_PI / 180 * 0.5f);
+    const float angle = qTan(fov * M_PI / 180 * 0.5f);
     const int numPixelSamples = numSamples;
     const Vec3f orig(0, atmosphere.earthRadius + subjectHeight, 0);// camera position
     std::default_random_engine generator;
@@ -234,44 +276,8 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
         const auto y = qRound(ty);
         for (unsigned x = 0; x < width; ++x) {
             Vec3f p;
-            for (unsigned m = 0; m < numPixelSamples; ++m) {
-                for (unsigned n = 0; n < numPixelSamples; ++n) {
-                    const float rayx = (2 * (x + (m + distribution(generator)) / numPixelSamples) / width - 1) *
-                                       aspectRatio * angle;
-                    const float rayy = (1 - (y + (n + distribution(generator)) / numPixelSamples) / height * 2) * angle;
-                    Vec3f dir(rayx, rayy, -1);
-                    normalize(dir);
-                    // [comment]
-                    // Does the ray intersect the planetory body? (the intersection test is against the Earth here
-                    // not against the atmosphere). If the ray intersects the Earth body and that the intersection
-                    // is ahead of us, then the ray intersects the planet in 2 points, t0 and t1. But we
-                    // only want to comupute the atmosphere between t=0 and t=t0 (where the ray hits
-                    // the Earth first). If the viewing ray doesn't hit the Earth, or course the ray
-                    // is then bounded to the range [0:INF]. In the method computeIncidentLight() we then
-                    // compute where this primary ray intersects the atmosphere and we limit the max t range
-                    // of the ray to the point where it leaves the atmosphere.
-                    // [/comment]
-                    float t0, t1, tMax = kInfinity;
-                    if (raySphereIntersect(orig, dir, atmosphere.earthRadius, t0, t1) && t1 > 0)
-                        tMax = std::max(0.f, t0);
-                    // [comment]
-                    // The *viewing or camera ray* is bounded to the range [0:tMax]
-                    // [/comment]
-                    p += atmosphere.computeIncidentLight(orig, dir, 0, tMax);
-                }
-            }
-            p *= 1.f / (numPixelSamples * numPixelSamples);
-
-            utils::clamp(p); // never exceed range, will look broken
-
-            utils::gammaCorrect(p, gamma);
-
-            if (toneMap)
-                applyToneMap(p);
-
-            p *= 1.4; // make things a little brighter for sunsets
-
-            utils::clamp(p); // never exceed range, will look broken
+            do_work(toneMap, gamma, atmosphere, width, height, aspectRatio, angle, numPixelSamples, orig, generator,
+                    distribution, y, x, p);
 
             auto color = QColor::fromRgbF(p.x, p.y, p.z);
 
@@ -279,3 +285,4 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
         }
     }
 }
+
