@@ -61,17 +61,18 @@ int main(int argc, char** argv) {
 
     // Font
     const auto fontFileName = ":/DMMono-Medium.ttf";
+
     if (!QFile(fontFileName).exists()) {
         utils::ERR_AND_EXIT("Font resource does not exist: %1", fontFileName);
         return -1;
     }
 
-    const int fontId = QFontDatabase::addApplicationFont(fontFileName);
-    if (fontId < 0) {
+    if (const int fontId = QFontDatabase::addApplicationFont(fontFileName); fontId < 0) {
         utils::ERR_AND_EXIT( "Failed to load font: %1", fontFileName);
         return -1;
     }
     QApplication::setFont(conf.fontName());
+    qWarning() << "Application font:" << QApplication::font().family();
 
     // Style
     app.setStyleSheet(QString("QMainWindow { background-color: %1; }")
