@@ -132,6 +132,7 @@ void Config::loadConfig() {
     read_stretchDown(jRoot);
     read_toneMap(jRoot);
     read_subjectHeight(jRoot);
+    read_noiseAmount(jRoot);
 
     read_clockTimerInterval(jRoot);
     read_imageTimerInterval(jRoot);

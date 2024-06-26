@@ -48,16 +48,11 @@
 #include <algorithm>
 #include <cmath>
 #include <random>
+#include <utils.h>
 
 #ifndef M_PI
 #define M_PI (3.14159265358979323846f)
 #endif
-
-float clamp(const float v, const float min = 0, const float max = 1) {
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
-}
 
 // [comment]
 // The atmosphere class. Stores data about the planetory body (its radius), the atmosphere itself
@@ -83,6 +78,15 @@ public:
 
 const Vec3f Atmosphere::betaR(3.8e-6f, 13.5e-6f, 33.1e-6f);
 const Vec3f Atmosphere::betaM(21e-6f);
+
+float applyToneMap(float p) {
+        return p < 1.413f ? pow(p * 0.38317f, 1.0f / 2.2f) : 1.0f - exp(-p);
+}
+
+void applyToneMap(Vec3f p) {
+    for (int c = 0; c < 3; c++)
+        p[c] = applyToneMap(p[c]);
+}
 
 bool solveQuadratic(const float a, const float b, const float c, float& x1, float& x2) {
     if (b == 0) {
@@ -211,15 +215,8 @@ QImage skycolor::renderSkydome(const Vec3f& sunDir, const QSize& dim) {
     return im;
 }
 
-
-void clamp(Vec3f& p) {
-    p.x = clamp(p.x);
-    p.y = clamp(p.y);
-    p.z = clamp(p.z);
-}
-
 void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float fov, int numSamples,
-                            float subjectHeight, float stretchDown) {
+                            float subjectHeight, float stretchDown, float gamma) {
     const Atmosphere atmosphere(sunDir);
 
     const float width = im.width();
@@ -265,33 +262,20 @@ void skycolor::renderCamera(const Vec3f& sunDir, QImage& im, bool toneMap, float
             }
             p *= 1.f / (numPixelSamples * numPixelSamples);
 
-            const float e = 2.4;
+            utils::clamp(p); // never exceed range, will look broken
 
-            clamp(p);
+            utils::gammaCorrect(p, gamma);
 
-            // Gamma correct
-            p.x = 1.f - pow(1 - p.x, e);
-            p.y = 1.f - pow(1 - p.y, e);
-            p.z = 1.f - pow(1 - p.z, e);
+            if (toneMap)
+                applyToneMap(p);
 
-            im.setPixelColor(x, qRound(ty / stretchDown), QColor::fromRgbF(p.x, p.y, p.z));
-        }
-    }
+            p *= 1.4; // make things a little brighter for sunsets
 
-    if (!toneMap) return;
+            utils::clamp(p); // never exceed range, will look broken
 
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            auto col = im.pixelColor(i, j);
-            Vec3f p(col.redF(), col.greenF(), col.blueF());
-            if (toneMap) {
-                // Apply tone mapping function
-                for (int c = 0; c < 3; c++)
-                    p[c] = p[c] < 1.413f ? pow(p[c] * 0.38317f, 1.0f / 2.2f) : 1.0f - exp(-p[c]);
-            }
-            p *= 1.4;
+            auto color = QColor::fromRgbF(p.x, p.y, p.z);
 
-            im.setPixelColor(i, j, QColor::fromRgbF(p.x, p.y, p.z));
+            im.setPixelColor(x, qRound(ty / stretchDown), color);
         }
     }
 }

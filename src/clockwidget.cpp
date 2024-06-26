@@ -8,6 +8,9 @@
 #include "suncalc.h"
 #include "utils.h"
 
+#include <qmath.h>
+#include <random>
+
 ClockWidget::ClockWidget() {
     const auto& config = Config::get();
     const int margin = config.margin();
@@ -97,11 +100,22 @@ void ClockWidget::updateImages() {
 
                     utils::ASSERT_OR_EXIT(skyResolutionScale >= 1, "skyResolutionScale must be > 1");
 
+                    // Reduce resolution for sky rendering, doesn't need that much detail anyway
                     QImage im(destImage.size() / conf.skyResolutionScale(), destImage.format());
-                    skycolor::renderCamera(sunDir, im, conf.toneMap(), conf.cameraFov(), conf.skySamples(), conf.subjectHeight(), conf.stretchDown());
-                    im = im.scaled(destImage.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                    skycolor::renderCamera(sunDir, im, conf.toneMap(), conf.cameraFov(), conf.skySamples(),
+                                           conf.subjectHeight(), conf.stretchDown());
+
+                    // Extract brightness
                     const auto& mini = im.scaled(QSize(3, 3), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
                     const float brightness = utils::averageBrightness(mini);
+
+                    // Scale back up to original
+                    im = im.scaled(destImage.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+                    // Add some noise, to combat banding
+                    utils::addNoise(im, Config::get().noiseAmount());
+
+                    // Little hack to not have to mask our bitmap
                     drawCorners(im, conf.boxCornerRadius(), conf.backgroundColor());
                     imageLoaded(index, im, brightness);
                 },

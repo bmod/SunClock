@@ -57,6 +57,7 @@ public:
     SETTING(float, stretchDown, style)
     SETTING(bool, toneMap, style)
     SETTING(float, subjectHeight, style)
+    SETTING(float, noiseAmount, style)
 
     SETTING(float, clockTimerInterval, logic)
     SETTING(float, imageTimerInterval, logic)
