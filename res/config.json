@@ -1,0 +1,34 @@
+{
+  "displaySize": [
+    1280,
+    720
+  ],
+  "panelCount": [
+    3,
+    2
+  ],
+  "panels": [
+    {
+      "timeUnit": "hours",
+      "timeZone": "America/Los_Angeles"
+    },
+    {
+      "timeUnit": "hours",
+      "timeZone": "Europe/London"
+    },
+    {
+      "timeUnit": "minutes"
+    },
+    {
+      "timeUnit": "hours",
+      "timeZone": "Asia/Hong_Kong"
+    },
+    {
+      "timeUnit": "hours",
+      "timeZone": "Australia/Sydney"
+    },
+    {
+      "timeUnit": "seconds"
+    }
+  ]
+}

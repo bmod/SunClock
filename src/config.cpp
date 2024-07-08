@@ -1,141 +1,106 @@
 #include "config.h"
 
-#include <QFileInfo>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QSettings>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 
-#include "utils.h"
+#include <nlohmann/json.hpp>
+#include "log.h"
 
-constexpr auto configFilePath = "config.json";
-constexpr auto airportsPath = ":/airports.csv";// from resources.qrc
+using json = nlohmann::json;
 
-QJsonValue jChild(const QJsonObject& obj, const QString& key) {
-    if (!obj.contains(key))
-        utils::ERR_AND_EXIT("Expected '%1'", key);
 
-    return obj[key];
+PanelData::TimeUnit timeUnit(const std::string& str) {
+    if (str == "hours")
+        return PanelData::Hours;
+    if (str == "minutes")
+        return PanelData::Minutes;
+    if (str == "seconds")
+        return PanelData::Seconds;
+
+    LOG(FATAL) << "Unknown time unit: " << str;
+    return PanelData::Seconds;
 }
 
-QJsonArray jArray(const QJsonObject& obj, const QString& key) {
-    const QJsonValue child = jChild(obj, key);
-    if (!child.isArray())
-        utils::ERR_AND_EXIT("Not an array: '%1'", key);
-    return child.toArray();
+PanelData::PanelData(const TimeUnit& unit, const std::string& tzName): mUnit(unit), mTzName(tzName) {
+    // Assert proper time zone, will throw if timezone is incorrect
+    if (!tzName.empty()) {
+        std::chrono::zoned_time(tzName, std::chrono::system_clock::now());
+        LOG(INFO) << "Using timezone: " << tzName;
+    }
 }
 
-QJsonObject jObject(const QJsonObject& obj, const QString& key) {
-    const QJsonValue child = jChild(obj, key);
-    if (!child.isObject())
-        utils::ERR_AND_EXIT("Not an object: '%1'", key);
-    return child.toObject();
-}
-
-QString j_QString(const QJsonObject& obj, const QString& key) {
-    const QJsonValue child = jChild(obj, key);
-    if (!child.isString())
-        utils::ERR_AND_EXIT("Not a string: '%1'", key);
-    return child.toString();
-}
-
-double j_double(const QJsonObject& obj, const QString& key) {
-    const QJsonValue child = jChild(obj, key);
-    if (!child.isDouble())
-        utils::ERR_AND_EXIT("Not a number: '%1'", key);
-    return child.toDouble();
-}
-
-double j_float(const QJsonObject& obj, const QString& key) {
-    return j_double(obj, key);
-}
-
-int j_int(const QJsonObject& obj, const QString& key) {
-    const double d = j_double(obj, key);
-    return qRound(d);
-}
-
-int j_bool(const QJsonObject& obj, const QString& key) {
-    const QJsonValue child = jChild(obj, key);
-    if (!child.isBool())
-        utils::ERR_AND_EXIT("Not a boolean: '%1'", key);
-    return child.toBool();
-}
-
-QColor j_QColor(const QJsonObject& obj, const QString& key) {
-    return j_QString(obj, key);
-}
-
-QString absPath(const QString& filePath) {
-    return QFileInfo(filePath).absoluteFilePath();
+const std::string& PanelData::timeZoneName() const {
+    return mTzName;
 }
 
 Config::Config() {
     loadConfig();
+
+    loadFont(mFontLight, "res/DMMono-Light.ttf");
+    loadFont(mFontRegular, "res/DMMono-Regular.ttf");
+    loadFont(mFontMedium, "res/DMMono-Medium.ttf");
 }
 
-Config& Config::get() {
-    static Config instance;
-    return instance;
+const sf::Vector2i& Config::screenSize() const { return mScreenSize; }
+
+const sf::Vector2i& Config::panelCount() const {
+    return mPanelCount;
 }
 
-const apdata::LocationList& Config::locations() const {
-    return mLocations;
+const sf::Font& Config::fontLight() const {
+    return mFontLight;
+}
+
+const sf::Font& Config::fontRegular() const {
+    return mFontRegular;
+}
+
+const sf::Font& Config::fontMedium() const {
+    return mFontMedium;
+}
+
+const Config::PanelDataList& Config::panelDatas() const {
+    return mPanelTypes;
+}
+
+void Config::loadFont(sf::Font& font, const char* fileName) {
+    LOG(INFO) << "Loading file: " << fileName;
+    std::filesystem::path fontPath(fileName);
+    if (!std::filesystem::exists(fileName)) {
+        LOG(FATAL) << "File not found: " << fileName;
+    }
+
+    font.loadFromFile(fileName);
 }
 
 void Config::loadConfig() {
-    if (!QFile::exists(configFilePath))
-        utils::ERR_AND_EXIT("File not found: %1", absPath(configFilePath));
-
-    QFile configFile(configFilePath);
-
-    if (!configFile.open(QIODevice::ReadOnly))
-        utils::ERR_AND_EXIT("Failed to open %1", absPath(configFilePath));
-
-    const auto data = configFile.readAll();
-
-    QJsonParseError err;
-    const auto doc = QJsonDocument::fromJson(data, &err);
-    if (err.error)
-        utils::ERR_AND_EXIT("Failed to parse Json %1: %2", absPath(configFilePath), err.errorString());
-
-    const auto jRoot = doc.object();
-
-    // Locations
-    const auto jGeneral = jObject(jRoot, "general");
-    auto jLocations = jArray(jGeneral, "locations");
-    QStringList locations;
-    for (const auto& jLocation: jLocations) {
-        locations << jLocation.toString();
+    const auto filePath = "res/config.json";
+    if (!std::filesystem::exists(filePath)) {
+        LOG(FATAL) << "File not found: " << filePath;
     }
-    if (!loadAirports(airportsPath, locations, mLocations))
-        utils::ERR_AND_EXIT("Failed to load airport data");
 
-    // Style
-    read_startFullscreen(jRoot);
-    read_windowWidth(jRoot);
-    read_windowHeight(jRoot);
+    std::ifstream is(filePath);
 
-    read_backgroundColor(jRoot);
-    read_clockColorTime(jRoot);
-    read_clockColorTimeDark(jRoot);
-    read_clockColorLocation(jRoot);
-    read_clockColorMinutes(jRoot);
-    read_clockColorSeconds(jRoot);
-    read_darkTextThreshold(jRoot);
-    read_fontName(jRoot);
-    read_margin(jRoot);
-    read_tileMargin(jRoot);
-    read_boxSpacing(jRoot);
-    read_boxCornerRadius(jRoot);
-    read_cameraFov(jRoot);
-    read_stretchDown(jRoot);
-    read_toneMap(jRoot);
-    read_subjectHeight(jRoot);
-    read_noiseAmount(jRoot);
+    const json& jData = json::parse(is);
+    mScreenSize.x = jData["displaySize"][0];
+    mScreenSize.y = jData["displaySize"][1];
+    mPanelCount.x = jData["panelCount"][0];
+    mPanelCount.y = jData["panelCount"][1];
+    const json::array_t& jPanels = jData["panels"];
 
-    read_clockTimerInterval(jRoot);
-    read_imageTimerInterval(jRoot);
-    read_skyResolutionScale(jRoot);
-    read_skySamples(jRoot);
+    if (jPanels.size() != mPanelCount.x * mPanelCount.y) {
+        LOG(FATAL) << "Panel count mismatch (check panelCount and number of defined panels)";
+    }
+
+    for (int i = 0, len = jPanels.size(); i < len; i++) {
+        const auto& jPanel = jPanels[i];
+        auto unit = timeUnit(jPanel["timeUnit"]);
+
+        std::string tz;
+        if (jPanel.contains("timeZone"))
+            tz = jPanel["timeZone"].get<std::string>();
+
+        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, tz));
+    }
 }

@@ -1,88 +1,71 @@
-#include <QAction>
-#include <QApplication>
-#include <QFontDatabase>
-#include <QMainWindow>
+#include "clock.h"
 
-#include "clockwidget.h"
+#include <filesystem>
+#include <utility>
+#include <chrono>
+
+#include <SFML/Graphics.hpp>
+
 #include "config.h"
+#include "panel.h"
+#include "log.h"
 
-#include <utils.h>
+#include <cmath>
 
-class ClockWindow final : public QMainWindow {
-public:
-    explicit ClockWindow() {
-        setCentralWidget(&mClockWidget);
+int main(int argc, char* argv[]) {
+    LOG(INFO) << "Clock 2 SFML";
+    Config conf;
+    Clock clock(conf);
 
-        mExitAction.setShortcut(Qt::Key_Escape);
-        connect(&mExitAction, &QAction::triggered,
-            this, &QMainWindow::close);
-        addAction(&mExitAction);
 
-        mFullscreenAction.setShortcut(Qt::Key_F);
-        connect(&mFullscreenAction, &QAction::triggered,
-            this, &ClockWindow::onToggleFullscreen);
-        addAction(&mFullscreenAction);
-    }
+    // create the window
+    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y), "CLOCK");
+    window.setVerticalSyncEnabled(true);
 
-protected:
-    void showEvent(QShowEvent* event) override {
-        QMainWindow::showEvent(event);
-
-        if (mFirstShow) {
-            mFirstShow = false;
-
-            if (Config::get().startFullscreen())
-                showFullScreen();
+    // run the program as long as the window is open
+    while (window.isOpen()) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) exit(0);
+        // check all the window's events that were triggered since the last iteration of the loop
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
         }
+
+
+        // clear the window with black color
+        window.clear(sf::Color::Black);
+
+        clock.update();
+        clock.draw(window);
+
+        // draw everything here...
+        // sf::Text textHour;
+        // textHour.setFont(conf.fontLight());
+        // textHour.setString("21");
+        // textHour.setCharacterSize(250);
+        // textHour.setFillColor(sf::Color::Cyan);
+        // window.draw(textHour);
+        //
+        // sf::Text textMin;
+        // textMin.setFont(conf.fontMedium());
+        // textMin.setString(":brown");
+        // textMin.setCharacterSize(250);
+        // textMin.setFillColor(sf::Color::Cyan);
+        // textMin.setPosition(textHour.getPosition() + sf::Vector2f(textHour.getGlobalBounds().width, 0));
+        // window.draw(textMin);
+        //
+        // sf::RectangleShape rect(sf::Vector2f(120.f, 50.f));
+        // rect.setFillColor(sf::Color::Transparent);
+        // rect.setOutlineThickness(1.f);
+        // rect.setOutlineColor(sf::Color::Red);
+        // rect.setPosition(textHour.getGlobalBounds().getPosition());
+        // rect.setSize(textHour.getGlobalBounds().getSize());
+        // window.draw(rect);
+
+        // end the current frame
+        window.display();
     }
 
-private:
-    void onToggleFullscreen() {
-        if (isFullScreen()) {
-            showNormal();
-        } else {
-            showFullScreen();
-        }
-    }
-
-    ClockWidget mClockWidget;
-    QAction mExitAction;
-    QAction mFullscreenAction;
-    bool mFirstShow = true;
-};
-
-int main(int argc, char** argv) {
-    QApplication::setApplicationName("SunClock");
-    QApplication::setOrganizationDomain("coresmith.com");
-
-    QApplication app(argc, argv);
-
-    const auto& conf = Config::get();
-
-    // Font
-    const auto fontFileName = ":/DMMono-Medium.ttf";
-
-    if (!QFile(fontFileName).exists()) {
-        utils::ERR_AND_EXIT("Font resource does not exist: %1", fontFileName);
-        return -1;
-    }
-
-    if (const int fontId = QFontDatabase::addApplicationFont(fontFileName); fontId < 0) {
-        utils::ERR_AND_EXIT( "Failed to load font: %1", fontFileName);
-        return -1;
-    }
-    QApplication::setFont(conf.fontName());
-    qWarning() << "Application font:" << QApplication::font().family();
-
-    // Style
-    app.setStyleSheet(QString("QMainWindow { background-color: %1; }")
-        .arg(conf.backgroundColor().name()));
-
-    // Get!
-    ClockWindow win;
-    win.resize(conf.windowWidth(), conf.windowHeight());
-
-    win.show();
-
-    return QApplication::exec();
+    return 0;
 }
