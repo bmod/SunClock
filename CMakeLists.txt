@@ -17,20 +17,30 @@ FetchContent_Declare(nlohmann_json
         GIT_TAG v3.11.3)
 FetchContent_MakeAvailable(nlohmann_json)
 
+FetchContent_Declare(dategit
+        GIT_REPOSITORY https://github.com/HowardHinnant/date.git
+        GIT_TAG v3.0.1)
+FetchContent_MakeAvailable(dategit)
+
+
+
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
+#file(GLOB_RECURSE RESOURCES res/*.h)
 
-add_executable(main ${SOURCES})
+add_executable(main ${SOURCES} ${dategit_SOURCE_DIR}/src/tz.cpp)
 
-target_link_libraries(main PRIVATE sfml-graphics)
-
+target_link_libraries(main PRIVATE sfml-graphics curl)
 target_include_directories(main PUBLIC ${nlohmann_json_SOURCE_DIR}/include)
+target_include_directories(main PUBLIC ${dategit_SOURCE_DIR}/include)
 
 set(RESOURCES
         config.json
         DMMono-Light.ttf
         DMMono-Medium.ttf
         DMMono-Regular.ttf
+        sky.frag
+        sky.vert
 )
 foreach (RES ${RESOURCES})
     configure_file(${CMAKE_CURRENT_LIST_DIR}/res/${RES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/${RES} COPYONLY)

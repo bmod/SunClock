@@ -16,6 +16,7 @@ public:
 
     bool hasTimeZone() const { return !timeZoneName().empty(); }
     [[nodiscard]] const std::string& timeZoneName() const;
+    const TimeUnit& timeUnit() const { return mUnit; }
 
 protected:
     const std::string mTzName;

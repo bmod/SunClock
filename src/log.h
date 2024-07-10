@@ -39,13 +39,9 @@ public:
             os << msg;
             opened = true;
         }
-        if (msglevel >= exitLevel)
-        {
-            std::cerr << "Exiting";
-            exit(-1);
-        }
         return *this;
     }
+
 
 private:
     typelog exitLevel = FATAL;

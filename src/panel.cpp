@@ -1,8 +1,22 @@
 #include "panel.h"
 
-#include "log.h"
-
+#include <cassert>
 #include <chrono>
+
+
+#include "log.h"
+#include "date/tz.h"
+#include "sfutil.h"
+
+using namespace std::chrono;
+
+sf::FloatRect stringBounds(sf::Text& text, const std::string& s) {
+    const auto oldString = text.getString();
+    text.setString(s);
+    const auto rect = text.getLocalBounds();
+    text.setString(oldString);
+    return rect;
+}
 
 Panel::Panel(const Config& conf, const PanelData& data): mConfig(conf), mData(data) {
     mSmallText.setFont(mConfig.fontLight());
@@ -11,50 +25,80 @@ Panel::Panel(const Config& conf, const PanelData& data): mConfig(conf), mData(da
     mRectShape.setOutlineColor(sf::Color(0xFF00FF55));
     mRectShape.setOutlineThickness(1);
     mRectShape.setFillColor(sf::Color(0x203040FF));
-    mBigText.setString("Big");
-    mSmallText.setString("Smol");
+
+    if (mData.hasTimeZone()) {
+        mShader.loadFromFile(_res("sky.vert"), _res("sky.frag"));
+
+    }
+
 }
 
 void Panel::draw(sf::RenderWindow& window) {
 
-    window.draw(mRectShape);
+    window.draw(mRectShape, &mShader);
     window.draw(mSmallText);
+
     window.draw(mBigText);
 }
 
+void Panel::updateText(const TimePoint currentTime) {
+    mBigText.setString(bigText(currentTime));
+    mSmallText.setString(mData.timeZoneName());
+}
 void Panel::setRect(sf::Rect<float> rect) {
-    // LOG(DEBUG) << "Set rect: " << rect.left << ", " << rect.top << ", " << rect.width << ", " << rect.height;
     mRectShape.setPosition(rect.getPosition());
     mRectShape.setSize(rect.getSize());
 
-    // Update text
-    {
-        auto time = std::chrono::system_clock::now();
-        if (mData.hasTimeZone()) {
-            time = std::chrono::zoned_time(mData.timeZoneName(), time);
-        }
+    auto utcNow = std::chrono::system_clock::now();
 
-        mBigText.setString(std::format("{:%H}", time));
-        mSmallText.setString(mData.timeZoneName());
-    }
+    updateText(utcNow);
 
     // Update layout
     {
         auto textMargin = mConfig.textMargin();
 
+        // Measure with widest characters
+        mBigTextRect = stringBounds(mBigText, stringForBounds());
+
         mBigText.setCharacterSize(200);
-        auto bigBB = mBigText.getLocalBounds();
-        mBigText.setPosition({
-            rect.left + rect.width - bigBB.width - textMargin,
-            rect.top + textMargin - bigBB.top
-        });
+        auto bigBB = mBigTextRect;
+        mBigText.setPosition({rect.left + rect.width - bigBB.width - textMargin, rect.top + textMargin - bigBB.top});
+
+        mSmallTextRect = stringBounds(mSmallText, mData.timeZoneName());
 
         mSmallText.setCharacterSize(20);
-        auto smallBB = mSmallText.getLocalBounds();
-        mSmallText.setPosition({
-            rect.left + textMargin,
-            rect.top + rect.height - smallBB.top - smallBB.height - textMargin
-        });
+        auto smallBB = mSmallTextRect;
+        mSmallText.setPosition(
+                {rect.left + textMargin, rect.top + rect.height - smallBB.top - smallBB.height - textMargin});
     }
+}
+std::string Panel::stringForBounds() const {
+    switch (mData.timeUnit()) {
+        case PanelData::Seconds:
+        case PanelData::Minutes:
+            return ":00";
+        case PanelData::Hours:
+            return "00";
+    }
+    return {};
+}
+std::string Panel::bigText(const TimePoint currentTime) {
+    switch (mData.timeUnit()) {
+        case PanelData::Seconds:
+            return std::format(":{:%S}", time_point_cast<seconds>(currentTime));
+
+        case PanelData::Minutes:
+            return std::format(":{:%M}", time_point_cast<minutes>(currentTime));
+
+        case PanelData::Hours: {
+            if (mData.hasTimeZone()) {
+                auto t = date::make_zoned(mData.timeZoneName(), currentTime);
+                return date::format("%H", t);
+            }
+            auto nowHours = time_point_cast<hours>(currentTime);
+            return std::format("{:%H}", nowHours);
+        }
+    }
+    return {};
 }
 

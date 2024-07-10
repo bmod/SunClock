@@ -16,6 +16,7 @@ public:
 
 private:
     void createPanels();
+    void updateText();
 
     sf::Rect<float> screenRect() const;
     sf::Rect<float> panelRectangle(int index) const;
