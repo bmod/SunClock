@@ -42,7 +42,13 @@ Config::Config() {
     loadFont(mFontMedium, "res/DMMono-Medium.ttf");
 }
 
-const sf::Vector2i& Config::screenSize() const { return mScreenSize; }
+const sf::Vector2i& Config::screenSize() const {
+    return mScreenSize;
+}
+
+void Config::setScreenSize(int width, int height) {
+    mScreenSize = {width, height};
+}
 
 const sf::Vector2i& Config::panelCount() const {
     return mPanelCount;

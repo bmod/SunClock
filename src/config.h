@@ -31,6 +31,7 @@ public:
     Config();
 
     const sf::Vector2i& screenSize() const;
+    void setScreenSize(int width, int height);
     const sf::Vector2i& panelCount() const;
     const sf::Font& fontLight() const;
     const sf::Font& fontRegular() const;

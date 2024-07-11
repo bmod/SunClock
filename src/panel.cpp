@@ -4,8 +4,8 @@
 #include <chrono>
 
 
-#include "log.h"
 #include "date/tz.h"
+#include "log.h"
 #include "sfutil.h"
 
 using namespace std::chrono;
@@ -18,7 +18,7 @@ sf::FloatRect stringBounds(sf::Text& text, const std::string& s) {
     return rect;
 }
 
-Panel::Panel(const Config& conf, const PanelData& data): mConfig(conf), mData(data) {
+Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(data) {
     mSmallText.setFont(mConfig.fontLight());
     mBigText.setFont(mConfig.fontMedium());
 
@@ -28,9 +28,7 @@ Panel::Panel(const Config& conf, const PanelData& data): mConfig(conf), mData(da
 
     if (mData.hasTimeZone()) {
         mShader.loadFromFile(_res("sky.vert"), _res("sky.frag"));
-
     }
-
 }
 
 void Panel::draw(sf::RenderWindow& window) {
@@ -59,10 +57,12 @@ void Panel::setRect(sf::Rect<float> rect) {
 
         // Measure with widest characters
         mBigTextRect = stringBounds(mBigText, stringForBounds());
+        LOG(INFO) << "String for bounds: " << stringForBounds() << " (text: " << mBigText.getString().toAnsiString()
+                  << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
+                  << ", " << mBigTextRect.height;
 
         mBigText.setCharacterSize(200);
-        auto bigBB = mBigTextRect;
-        mBigText.setPosition({rect.left + rect.width - bigBB.width - textMargin, rect.top + textMargin - bigBB.top});
+        mBigText.setPosition({(rect.left + rect.width) - mBigTextRect.width - textMargin, rect.top + textMargin - mBigTextRect.top});
 
         mSmallTextRect = stringBounds(mSmallText, mData.timeZoneName());
 
@@ -101,4 +101,3 @@ std::string Panel::bigText(const TimePoint currentTime) {
     }
     return {};
 }
-

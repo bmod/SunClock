@@ -7,12 +7,14 @@ Clock::Clock(const Config& conf): mConf(conf) {
 }
 
 void Clock::update() {
-    for (int i = 0, len = mPanels.size(); i < len; i++) {
-        mPanels[i]->setRect(panelRectangle(i));
-    }
+
 }
 
 void Clock::draw(sf::RenderWindow& window) {
+    for (int i = 0, len = mPanels.size(); i < len; i++) {
+        mPanels[i]->setRect(panelRectangle(i));
+    }
+
     for (auto& p: mPanels) {
         p->draw(window);
     }

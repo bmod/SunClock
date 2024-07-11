@@ -16,35 +16,35 @@ int main(int argc, char* argv[]) {
     Clock clock(conf);
 
     // Check
-    if (sf::Shader::isAvailable())
-    {
+    if (sf::Shader::isAvailable()) {
         LOG(INFO) << "No shaders available on this hardware";
     }
 
     // Create the window
-    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y), "CLOCK");
+    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y), "CLOCK", sf::Style::Default);
     window.setVerticalSyncEnabled(true);
 
-    // run the program as long as the window is open
     while (window.isOpen()) {
-        // check all the window's events that were triggered since the last iteration of the loop
-        sf::Event event;
+        sf::Event event{};
         while (window.pollEvent(event)) {
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
                 exit(0);
-            if (event.type == sf::Event::Closed)
+            } else if (event.type == sf::Event::Closed) {
                 window.close();
+            } else if (event.type == sf::Event::Resized) {
+                // update the view to the new size of the window
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                window.setView(sf::View(visibleArea));
+                conf.setScreenSize(event.size.width, event.size.height);
+            }
+
+            window.clear(sf::Color(0x334455FF));
+
+            clock.update();
+            clock.draw(window);
+
+            window.display();
         }
-
-        window.clear(sf::Color::Black);
-
-        clock.update();
-        clock.draw(window);
-
-        window.display();
-
-        // sf::sleep(sf::seconds(0.5f));
     }
-
     return 0;
 }
