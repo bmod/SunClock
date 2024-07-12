@@ -38,6 +38,9 @@ int main(int argc, char* argv[]) {
                 conf.setScreenSize(event.size.width, event.size.height);
             }
 
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                LOG(INFO) << "Right here:" << sf::Mouse::getPosition().x;
+            }
             window.clear(sf::Color(0x334455FF));
 
             clock.update();
@@ -45,6 +48,6 @@ int main(int argc, char* argv[]) {
 
             window.display();
         }
-    }
+    } //0.571428571
     return 0;
 }

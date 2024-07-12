@@ -25,7 +25,9 @@ protected:
     sf::RectangleShape mRectShape;
     sf::Text mBigText;
     sf::FloatRect mBigTextRect;
+    sf::RectangleShape mBigTextShape;
     sf::Text mSmallText;
     sf::FloatRect mSmallTextRect;
+    sf::RectangleShape mSmallTextShape;
     sf::Shader mShader;
 };

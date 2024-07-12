@@ -36,6 +36,8 @@ void Panel::draw(sf::RenderWindow& window) {
     window.draw(mRectShape, &mShader);
     window.draw(mSmallText);
 
+    window.draw(mBigTextShape);
+
     window.draw(mBigText);
 }
 
@@ -57,12 +59,20 @@ void Panel::setRect(sf::Rect<float> rect) {
 
         // Measure with widest characters
         mBigTextRect = stringBounds(mBigText, stringForBounds());
-        LOG(INFO) << "String for bounds: " << stringForBounds() << " (text: " << mBigText.getString().toAnsiString()
-                  << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
-                  << ", " << mBigTextRect.height;
+        // LOG(INFO) << "String for bounds: " << stringForBounds() << " (text: " << mBigText.getString().toAnsiString()
+        //           << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
+        //           << ", " << mBigTextRect.height;
 
         mBigText.setCharacterSize(200);
-        mBigText.setPosition({(rect.left + rect.width) - mBigTextRect.width - textMargin, rect.top + textMargin - mBigTextRect.top});
+        mBigText.setPosition(
+                {(rect.left + rect.width) - mBigTextRect.width - textMargin, rect.top + textMargin - mBigTextRect.top});
+
+        mBigTextShape.setPosition(mBigText.getPosition());
+        mBigTextShape.setSize(mBigTextRect.getSize());
+        mBigTextShape.setOutlineThickness(1);
+        mBigTextShape.setOutlineColor(sf::Color::Red);
+        mBigTextShape.setFillColor(sf::Color::Transparent);
+
 
         mSmallTextRect = stringBounds(mSmallText, mData.timeZoneName());
 
