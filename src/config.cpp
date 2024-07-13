@@ -23,11 +23,6 @@ PanelData::TimeUnit timeUnit(const std::string& str) {
 }
 
 PanelData::PanelData(const TimeUnit& unit, const std::string& tzName): mUnit(unit), mTzName(tzName) {
-    // Assert proper time zone, will throw if timezone is incorrect
-    if (!tzName.empty()) {
-        std::chrono::locate_zone(tzName);
-        LOG(INFO) << "Using timezone: " << tzName;
-    }
 }
 
 const std::string& PanelData::timeZoneName() const {

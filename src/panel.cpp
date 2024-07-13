@@ -95,10 +95,10 @@ std::string Panel::stringForBounds() const {
 std::string Panel::bigText(const TimePoint currentTime) {
     switch (mData.timeUnit()) {
         case PanelData::Seconds:
-            return std::format(":{:%S}", time_point_cast<seconds>(currentTime));
+            return date::format(":%S", time_point_cast<seconds>(currentTime));
 
         case PanelData::Minutes:
-            return std::format(":{:%M}", time_point_cast<minutes>(currentTime));
+            return date::format(":%M", time_point_cast<minutes>(currentTime));
 
         case PanelData::Hours: {
             if (mData.hasTimeZone()) {
@@ -106,7 +106,7 @@ std::string Panel::bigText(const TimePoint currentTime) {
                 return date::format("%H", t);
             }
             auto nowHours = time_point_cast<hours>(currentTime);
-            return std::format("{:%H}", nowHours);
+            return date::format(":%H", nowHours);
         }
     }
     return {};
