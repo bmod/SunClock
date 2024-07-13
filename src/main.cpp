@@ -21,7 +21,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Create the window
-    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y), "CLOCK", sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y),
+        "CLOCK", sf::Style::Fullscreen);
     window.setVerticalSyncEnabled(true);
 
     while (window.isOpen()) {
