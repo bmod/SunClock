@@ -23,16 +23,15 @@ FetchContent_Declare(dategit
 FetchContent_MakeAvailable(dategit)
 
 
-
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 #file(GLOB_RECURSE RESOURCES res/*.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${dategit_SOURCE_DIR}/src/tz.cpp)
 
-target_link_libraries(main PRIVATE sfml-graphics curl)
-target_include_directories(main PUBLIC ${nlohmann_json_SOURCE_DIR}/include)
-target_include_directories(main PUBLIC ${dategit_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics curl)
+target_include_directories(${PROJECT_NAME} PUBLIC ${nlohmann_json_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${dategit_SOURCE_DIR}/include)
 
 set(RESOURCES
         config.json
@@ -43,7 +42,10 @@ set(RESOURCES
         sky.vert
 )
 foreach (RES ${RESOURCES})
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/res/${RES} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/${RES} COPYONLY)
+    configure_file(
+            ${CMAKE_CURRENT_LIST_DIR}/res/${RES}
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/${RES} COPYONLY
+    )
 endforeach ()
 
 if (WIN32)
