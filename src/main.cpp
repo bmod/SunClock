@@ -16,9 +16,9 @@ int main(int argc, char* argv[]) {
     Clock clock(conf);
 
     // Check
-    if (sf::Shader::isAvailable()) {
-        LOG(INFO) << "No shaders available on this hardware";
-    }
+    // if (sf::Shader::isAvailable()) {
+    //     LOG(INFO) << "No shaders available on this hardware";
+    // }
 
     // Create the window
     sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y),
