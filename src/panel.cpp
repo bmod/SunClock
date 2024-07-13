@@ -63,9 +63,9 @@ void Panel::setRect(sf::Rect<float> rect) {
         //           << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
         //           << ", " << mBigTextRect.height;
 
-        mBigText.setCharacterSize(200);
+        mBigText.setCharacterSize(130);
         mBigText.setPosition(
-                {(rect.left + rect.width) - mBigTextRect.width - textMargin, rect.top + textMargin - mBigTextRect.top});
+                {(rect.left + rect.width) - mBigTextRect.width - textMargin * 2, rect.top + textMargin - mBigTextRect.top});
 
         mBigTextShape.setPosition(mBigText.getPosition());
         mBigTextShape.setSize(mBigTextRect.getSize());
@@ -76,8 +76,8 @@ void Panel::setRect(sf::Rect<float> rect) {
 
         mSmallTextRect = stringBounds(mSmallText, mData.timeZoneName());
 
-        mSmallText.setCharacterSize(20);
-        auto smallBB = mSmallTextRect;
+        mSmallText.setCharacterSize(16);
+        const auto smallBB = mSmallTextRect;
         mSmallText.setPosition(
                 {rect.left + textMargin, rect.top + rect.height - smallBB.top - smallBB.height - textMargin});
     }
