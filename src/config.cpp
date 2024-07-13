@@ -65,6 +65,10 @@ const Config::PanelDataList& Config::panelDatas() const {
     return mPanelTypes;
 }
 
+const bool Config::startFullscreen() const {
+    return mStartFullScreen;
+}
+
 void Config::loadFont(sf::Font& font, const char* fileName) {
     LOG(INFO) << "Loading file: " << fileName;
     std::filesystem::path fontPath(fileName);
@@ -88,6 +92,7 @@ void Config::loadConfig() {
     mScreenSize.y = jData["displaySize"][1];
     mPanelCount.x = jData["panelCount"][0];
     mPanelCount.y = jData["panelCount"][1];
+    mStartFullScreen = jData["startFullscreen"];
     const json::array_t& jPanels = jData["panels"];
 
     if (jPanels.size() != mPanelCount.x * mPanelCount.y) {

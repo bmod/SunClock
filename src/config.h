@@ -37,6 +37,7 @@ public:
     const sf::Font& fontRegular() const;
     const sf::Font& fontMedium() const;
     const PanelDataList& panelDatas() const;
+    const bool startFullscreen() const;
 
     float margin() const { return 24; }
     float spacing() const { return 8; }
@@ -52,4 +53,5 @@ private:
     sf::Font mFontRegular;
     sf::Font mFontMedium;
     PanelDataList mPanelTypes;
+    bool mStartFullScreen;
 };
