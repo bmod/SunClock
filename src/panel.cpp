@@ -49,6 +49,7 @@ void Panel::updateText(const TimePoint& currentTime) {
 void Panel::setRect(const sf::FloatRect& rect) {
     mRectShape.setPosition(rect.getPosition());
     mRectShape.setSize(rect.getSize());
+    mRectShape.setTextureRect({0, 0, 1, 1});
 
     const auto utcNow = system_clock::now();
 
