@@ -13,8 +13,8 @@ public:
 
     void draw(sf::RenderWindow& window);
 
-    void updateText(TimePoint currentTime);
-    void setRect(sf::Rect<float> rect);
+    void updateText(const TimePoint& currentTime);
+    void setRect(const sf::FloatRect& rect);
 
 protected:
     std::string stringForBounds() const;

@@ -41,21 +41,23 @@ void Panel::draw(sf::RenderWindow& window) {
     window.draw(mBigText);
 }
 
-void Panel::updateText(const TimePoint currentTime) {
+void Panel::updateText(const TimePoint& currentTime) {
     mBigText.setString(bigText(currentTime));
     mSmallText.setString(mData.timeZoneName());
 }
-void Panel::setRect(sf::Rect<float> rect) {
+void Panel::setRect(const sf::FloatRect& rect) {
     mRectShape.setPosition(rect.getPosition());
     mRectShape.setSize(rect.getSize());
 
-    auto utcNow = std::chrono::system_clock::now();
+    const auto utcNow = system_clock::now();
 
     updateText(utcNow);
 
     // Update layout
     {
         auto textMargin = mConfig.textMargin();
+        sf::FloatRect contentRect{rect.left + textMargin, rect.top + textMargin, rect.width - textMargin * 2,
+                                  rect.height - textMargin * 2};
 
         // Measure with widest characters
         mBigTextRect = stringBounds(mBigText, stringForBounds());
@@ -63,9 +65,14 @@ void Panel::setRect(sf::Rect<float> rect) {
         //           << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
         //           << ", " << mBigTextRect.height;
 
-        mBigText.setCharacterSize(130);
-        mBigText.setPosition(
-                {(rect.left + rect.width) - mBigTextRect.width - textMargin * 2, rect.top + textMargin - mBigTextRect.top});
+        mBigText.setCharacterSize(100);
+        float px = contentRect.left + contentRect.width - mBigTextRect.width;
+        float py = contentRect.top ;
+
+        px -= mBigTextRect.left;
+        py -= mBigTextRect.top;
+
+        mBigText.setPosition(px, py);
 
         mBigTextShape.setPosition(mBigText.getPosition());
         mBigTextShape.setSize(mBigTextRect.getSize());
