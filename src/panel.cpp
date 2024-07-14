@@ -66,7 +66,7 @@ void Panel::setRect(const sf::FloatRect& rect) {
         //           << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
         //           << ", " << mBigTextRect.height;
 
-        mBigText.setCharacterSize(100);
+        mBigText.setCharacterSize(110);
         float px = contentRect.left + contentRect.width - mBigTextRect.width;
         float py = contentRect.top ;
 
