@@ -10,10 +10,12 @@
   "startFullscreen": false,
   "panels": [
     {
+      "displayName": "LAX",
       "timeUnit": "hours",
       "timeZone": "America/Los_Angeles"
     },
     {
+      "displayName": "AMS",
       "timeUnit": "hours",
       "timeZone": "Europe/Amsterdam"
     },
@@ -21,10 +23,12 @@
       "timeUnit": "minutes"
     },
     {
+      "displayName": "HKG",
       "timeUnit": "hours",
       "timeZone": "Asia/Hong_Kong"
     },
     {
+      "displayName": "SYD",
       "timeUnit": "hours",
       "timeZone": "Australia/Sydney"
     },

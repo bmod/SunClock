@@ -36,14 +36,15 @@ void Panel::draw(sf::RenderWindow& window) {
     window.draw(mRectShape, &mShader);
     window.draw(mSmallText);
 
-    window.draw(mBigTextShape);
+    // TODO: Remove this big guy altogether
+    // window.draw(mBigTextShape);
 
     window.draw(mBigText);
 }
 
 void Panel::updateText(const TimePoint& currentTime) {
     mBigText.setString(bigText(currentTime));
-    mSmallText.setString(mData.timeZoneName());
+    mSmallText.setString(mData.displayName());
 }
 void Panel::setRect(const sf::FloatRect& rect) {
     mRectShape.setPosition(rect.getPosition());
@@ -83,7 +84,7 @@ void Panel::setRect(const sf::FloatRect& rect) {
 
         mSmallTextRect = stringBounds(mSmallText, mData.timeZoneName());
 
-        mSmallText.setCharacterSize(16);
+        mSmallText.setCharacterSize(45);
         const auto smallBB = mSmallTextRect;
         mSmallText.setPosition(
                 {rect.left + textMargin, rect.top + rect.height - smallBB.top - smallBB.height - textMargin});

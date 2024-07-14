@@ -22,7 +22,8 @@ PanelData::TimeUnit timeUnit(const std::string& str) {
     return PanelData::Seconds;
 }
 
-PanelData::PanelData(const TimeUnit& unit, const std::string& tzName): mUnit(unit), mTzName(tzName) {
+PanelData::PanelData(const TimeUnit& unit, const std::string& tzName,const std::string& displayName)
+    : mUnit(unit), mTzName(tzName), mDisplayName(displayName) {
 }
 
 const std::string& PanelData::timeZoneName() const {
@@ -103,10 +104,12 @@ void Config::loadConfig() {
         const auto& jPanel = jPanels[i];
         auto unit = timeUnit(jPanel["timeUnit"]);
 
+        std::string displayName = jPanel.contains("displayName") ? jPanel["displayName"] : "";
+
         std::string tz;
         if (jPanel.contains("timeZone"))
             tz = jPanel["timeZone"].get<std::string>();
 
-        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, tz));
+        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, tz, displayName));
     }
 }

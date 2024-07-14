@@ -12,15 +12,17 @@ public:
         Hours, Minutes, Seconds
     };
 
-    explicit PanelData(const TimeUnit& unit, const std::string& tzName = "");
+    explicit PanelData(const TimeUnit& unit, const std::string& tzName = "", const std::string& displayName = "");
 
-    bool hasTimeZone() const { return !timeZoneName().empty(); }
+    [[nodiscard]] bool hasTimeZone() const { return !timeZoneName().empty(); }
     [[nodiscard]] const std::string& timeZoneName() const;
-    const TimeUnit& timeUnit() const { return mUnit; }
+    [[nodiscard]] const TimeUnit& timeUnit() const { return mUnit; }
+    [[nodiscard]] const std::string& displayName() const { return mDisplayName; }
 
 protected:
     const std::string mTzName;
     const TimeUnit mUnit;
+    const std::string mDisplayName;
 };
 
 class Config
