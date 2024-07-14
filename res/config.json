@@ -7,7 +7,7 @@
     3,
     2
   ],
-  "startFullscreen": false,
+  "startFullscreen": true,
   "panels": [
     {
       "displayName": "LAX",
