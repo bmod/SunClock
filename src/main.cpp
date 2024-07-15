@@ -6,9 +6,10 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../cmake-build-release/_deps/dategit-src/include/date/date.h"
 #include "config.h"
 #include "log.h"
+
+#include <date/date.h>
 
 constexpr int secondsInDay = 86400;
 
