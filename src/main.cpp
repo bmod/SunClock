@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
     sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y),
         "CLOCK",
         conf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default);
+    window.setMouseCursorVisible(false);
     window.setVerticalSyncEnabled(true);
     LOG(INFO) << "Resolution: " << window.getSize().x << ", " << window.getSize().y;
 
