@@ -153,6 +153,9 @@ vec3 computeIncidentLight(vec3 orig, vec3 dir, float tmin, float tmax) {
 
 void main()
 {
+    gl_FragColor = vec4(0.1, 0.2, 0.3, 1.0);
+    return;
+
     bool toneMap = true;
     float fov = 90.0;
     float stretchDown = 0.4;
