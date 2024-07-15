@@ -35,6 +35,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${dategit_SOURCE_DIR}/include)
 
 set(RESOURCES
         config.json
+        airports.json
         DMMono-Light.ttf
         DMMono-Medium.ttf
         DMMono-Regular.ttf

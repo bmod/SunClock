@@ -7,15 +7,15 @@
     3,
     2
   ],
-  "startFullscreen": true,
+  "startFullscreen": false,
   "panels": [
     {
-      "displayName": "LAX",
+      "iata": "LAX",
       "timeUnit": "hours",
       "timeZone": "America/Los_Angeles"
     },
     {
-      "displayName": "AMS",
+      "iata": "AMS",
       "timeUnit": "hours",
       "timeZone": "Europe/Amsterdam"
     },
@@ -23,12 +23,12 @@
       "timeUnit": "minutes"
     },
     {
-      "displayName": "HKG",
+      "iata": "HKG",
       "timeUnit": "hours",
       "timeZone": "Asia/Hong_Kong"
     },
     {
-      "displayName": "SYD",
+      "iata": "SYD",
       "timeUnit": "hours",
       "timeZone": "Australia/Sydney"
     },

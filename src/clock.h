@@ -12,7 +12,7 @@ public:
     Clock(const Config& conf);
 
     void update();
-    void draw(sf::RenderWindow& window);
+    void draw(sf::RenderWindow& window, const TimePoint& currentTime);
 
 private:
     void createPanels();

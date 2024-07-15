@@ -6,9 +6,11 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "../cmake-build-release/_deps/dategit-src/include/date/date.h"
 #include "config.h"
 #include "log.h"
 
+constexpr int secondsInDay = 86400;
 
 int main(int argc, char* argv[]) {
     LOG(INFO) << "Clock 2 SFML";
@@ -41,13 +43,21 @@ int main(int argc, char* argv[]) {
                 conf.setScreenSize(event.size.width, event.size.height);
             }
 
+            TimePoint currentTime = std::chrono::system_clock::now();
+
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                LOG(INFO) << "Right here:" << sf::Mouse::getPosition().x;
+                // Allow dragging to change the time quickly
+                auto mousePos = sf::Mouse::getPosition(window);
+                auto xNormalized = mousePos.x / static_cast<float>(window.getSize().x);
+
+                TimePoint startOfDay = std::chrono::floor<date::days>(currentTime);
+
+                currentTime = startOfDay + std::chrono::seconds(1) * int(xNormalized * secondsInDay / 0.9);
             }
+
             window.clear(sf::Color(0x334455FF));
 
-            clock.update();
-            clock.draw(window);
+            clock.draw(window, currentTime);
 
             window.display();
         }

@@ -1,28 +1,47 @@
 #pragma once
 
 
-#include <memory>
 #include <SFML/Graphics.hpp>
+#include <memory>
 
+#include <nlohmann/json.hpp>
+
+struct Airport {
+    float latitude = 0;
+    float longitude = 0;
+    std::string iata;
+    std::string timezone;
+};
+
+class AirportDB {
+public:
+    AirportDB(const std::string& filePath);
+    bool getAirport(const std::string& iata, Airport& ap);
+
+private:
+    std::unordered_map<std::string, Airport> mAirports;
+};
 
 class PanelData
 {
 public:
+    using GeoLocation = std::pair<float, float>;
+
     enum TimeUnit {
         Hours, Minutes, Seconds
     };
 
-    explicit PanelData(const TimeUnit& unit, const std::string& tzName = "", const std::string& displayName = "");
+    explicit PanelData(const TimeUnit& unit, const Airport& airport);
 
     [[nodiscard]] bool hasTimeZone() const { return !timeZoneName().empty(); }
     [[nodiscard]] const std::string& timeZoneName() const;
-    [[nodiscard]] const TimeUnit& timeUnit() const { return mUnit; }
-    [[nodiscard]] const std::string& displayName() const { return mDisplayName; }
+    [[nodiscard]] const TimeUnit& timeUnit() const;
+    [[nodiscard]] const std::string& displayName() const;
+    GeoLocation geoCoordinate() const;
 
 protected:
-    const std::string mTzName;
     const TimeUnit mUnit;
-    const std::string mDisplayName;
+    const Airport mAirport;
 };
 
 class Config

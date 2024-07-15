@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include <chrono>
 #include <filesystem>
 #include <fstream>
 
@@ -9,6 +8,42 @@
 
 using json = nlohmann::json;
 
+AirportDB::AirportDB(const std::string& filePath) {
+    if (!std::filesystem::exists(filePath)) {
+        LOG(FATAL) << "File not found: " << filePath;
+    }
+    std::ifstream airportsStream(filePath);
+    auto jAirports = nlohmann::json::parse(airportsStream);
+    for (auto& jAirport: jAirports) {
+        Airport ap;
+
+        if (jAirport.contains("iata_code"))
+            ap.iata = jAirport["iata_code"];
+
+        if (jAirport.contains("timezone"))
+            ap.timezone = jAirport["timezone"];
+
+        if (jAirport.contains("latitude"))
+            ap.latitude = jAirport["latitude"];
+
+        if (jAirport.contains("longitude"))
+            ap.longitude = jAirport["longitude"];
+
+        mAirports.insert({ap.iata, ap});
+    }
+}
+
+bool AirportDB::getAirport(const std::string& iata, Airport& ap) {
+    auto it = mAirports.find(iata);
+    if (it == mAirports.end())
+        return false;
+
+    ap.latitude = it->second.latitude;
+    ap.longitude = it->second.longitude;
+    ap.iata = it->second.iata;
+    ap.timezone = it->second.timezone;
+    return true;
+}
 
 PanelData::TimeUnit timeUnit(const std::string& str) {
     if (str == "hours")
@@ -22,12 +57,21 @@ PanelData::TimeUnit timeUnit(const std::string& str) {
     return PanelData::Seconds;
 }
 
-PanelData::PanelData(const TimeUnit& unit, const std::string& tzName,const std::string& displayName)
-    : mUnit(unit), mTzName(tzName), mDisplayName(displayName) {
+PanelData::PanelData(const TimeUnit& unit, const Airport& airport)
+    : mUnit(unit), mAirport(airport) {
 }
 
 const std::string& PanelData::timeZoneName() const {
-    return mTzName;
+    return mAirport.timezone;
+}
+const PanelData::TimeUnit& PanelData::timeUnit() const {
+    return mUnit;
+}
+const std::string& PanelData::displayName() const {
+    return mAirport.iata;
+}
+PanelData::GeoLocation PanelData::geoCoordinate() const {
+    return {mAirport.latitude, mAirport.longitude};
 }
 
 Config::Config() {
@@ -81,14 +125,15 @@ void Config::loadFont(sf::Font& font, const char* fileName) {
 }
 
 void Config::loadConfig() {
+    AirportDB airports("res/airports.json");
+
     const auto filePath = "res/config.json";
     if (!std::filesystem::exists(filePath)) {
         LOG(FATAL) << "File not found: " << filePath;
     }
-
     std::ifstream is(filePath);
-
     const json& jData = json::parse(is);
+
     mScreenSize.x = jData["displaySize"][0];
     mScreenSize.y = jData["displaySize"][1];
     mPanelCount.x = jData["panelCount"][0];
@@ -104,12 +149,10 @@ void Config::loadConfig() {
         const auto& jPanel = jPanels[i];
         auto unit = timeUnit(jPanel["timeUnit"]);
 
-        std::string displayName = jPanel.contains("displayName") ? jPanel["displayName"] : "";
+        std::string iata = jPanel.contains("iata") ? jPanel["iata"] : "";
 
-        std::string tz;
-        if (jPanel.contains("timeZone"))
-            tz = jPanel["timeZone"].get<std::string>();
-
-        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, tz, displayName));
+        Airport ap;
+        airports.getAirport(iata, ap);
+        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, ap));
     }
 }

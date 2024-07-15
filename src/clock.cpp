@@ -10,9 +10,9 @@ void Clock::update() {
 
 }
 
-void Clock::draw(sf::RenderWindow& window) {
+void Clock::draw(sf::RenderWindow& window, const TimePoint& currentTime) {
     for (int i = 0, len = mPanels.size(); i < len; i++) {
-        mPanels[i]->setRect(panelRectangle(i));
+        mPanels[i]->update(currentTime, panelRectangle(i));
     }
 
     for (auto& p: mPanels) {

@@ -7,16 +7,11 @@
 #include "date/tz.h"
 #include "log.h"
 #include "sfutil.h"
+#include "suncalc.h"
 
 using namespace std::chrono;
 
-sf::FloatRect stringBounds(sf::Text& text, const std::string& s) {
-    const auto oldString = text.getString();
-    text.setString(s);
-    const auto rect = text.getLocalBounds();
-    text.setString(oldString);
-    return rect;
-}
+
 
 Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(data) {
     mSmallText.setFont(mConfig.fontLight());
@@ -25,9 +20,14 @@ Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(d
     mRectShape.setOutlineColor(sf::Color(0xFF00FF55));
     mRectShape.setOutlineThickness(1);
     mRectShape.setFillColor(sf::Color(0x203040FF));
+    mRectShape.setCornersRadius(10);
+    mRectShape.setCornerPointCount(8);
 
     if (mData.hasTimeZone()) {
-        mShader.loadFromFile(_res("sky.vert"), _res("sky.frag"));
+        if (!mShader.loadFromFile(sfutil::res("sky.vert"), sfutil::res("sky.frag"))) {
+            LOG(FATAL) << "Shader load error";
+            exit(-1);
+        }
     }
 }
 
@@ -42,18 +42,23 @@ void Panel::draw(sf::RenderWindow& window) {
     window.draw(mBigText);
 }
 
-void Panel::updateText(const TimePoint& currentTime) {
+void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
+
+    const auto coords = suncalc::sunCoords(currentTime, mData.geoCoordinate().first, mData.geoCoordinate().second, 1);
+    const auto sunVector = suncalc::sunVector(coords);
+    mShader.setUniform("sunDir", sunVector);
+
     mBigText.setString(bigText(currentTime));
     mSmallText.setString(mData.displayName());
-}
-void Panel::setRect(const sf::FloatRect& rect) {
+
+    float diagonal = sfutil::length(rect.getSize());
+
     mRectShape.setPosition(rect.getPosition());
     mRectShape.setSize(rect.getSize());
     mRectShape.setTextureRect({0, 0, 1, 1});
 
-    const auto utcNow = system_clock::now();
+    mShader.setUniform("resolution", rect.getSize());
 
-    updateText(utcNow);
 
     // Update layout
     {
@@ -62,14 +67,14 @@ void Panel::setRect(const sf::FloatRect& rect) {
                                   rect.height - textMargin * 2};
 
         // Measure with widest characters
-        mBigTextRect = stringBounds(mBigText, stringForBounds());
+        mBigTextRect = sfutil::stringBounds(mBigText, stringForBounds());
         // LOG(INFO) << "String for bounds: " << stringForBounds() << " (text: " << mBigText.getString().toAnsiString()
         //           << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
         //           << ", " << mBigTextRect.height;
 
         mBigText.setCharacterSize(110);
         float px = contentRect.left + contentRect.width - mBigTextRect.width;
-        float py = contentRect.top ;
+        float py = contentRect.top;
 
         px -= mBigTextRect.left;
         py -= mBigTextRect.top;
@@ -83,14 +88,15 @@ void Panel::setRect(const sf::FloatRect& rect) {
         mBigTextShape.setFillColor(sf::Color::Transparent);
 
 
-        mSmallTextRect = stringBounds(mSmallText, mData.timeZoneName());
+        mSmallTextRect = sfutil::stringBounds(mSmallText, mData.timeZoneName());
 
         mSmallText.setCharacterSize(45);
         const auto smallBB = mSmallTextRect;
-        mSmallText.setPosition(
-                {rect.left + textMargin, rect.top + rect.height - smallBB.top - smallBB.height - textMargin});
+        mSmallText.setPosition(rect.left + textMargin,
+                               rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
     }
 }
+
 std::string Panel::stringForBounds() const {
     switch (mData.timeUnit()) {
         case PanelData::Seconds:
@@ -101,6 +107,7 @@ std::string Panel::stringForBounds() const {
     }
     return {};
 }
+
 std::string Panel::bigText(const TimePoint currentTime) {
     switch (mData.timeUnit()) {
         case PanelData::Seconds:
