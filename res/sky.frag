@@ -135,8 +135,8 @@ float remap01(float v, float lo, float hi) {
 void main() {
     vec2 uv = gl_TexCoord[0].xy;
     vec2 uvWindow = vec2(
-        remap01(1-uv.x, 0.4, 0.6),
-        uv.y / 4 + 0.25
+        remap01(1.0 - uv.x, 0.4, 0.6),
+        uv.y / 4.0 + 0.25
     );
     vec3 ray = rectToSpherical(uvWindow);
 
