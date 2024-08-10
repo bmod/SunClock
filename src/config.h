@@ -22,10 +22,15 @@ private:
     std::unordered_map<std::string, Airport> mAirports;
 };
 
+struct GeoLocation {
+    GeoLocation(const float lat, const float lon) : latitude(lat), longitude(lon) {}
+    float latitude;
+    float longitude;
+};
+
 class PanelData
 {
 public:
-    using GeoLocation = std::pair<float, float>;
 
     enum TimeUnit {
         Hours, Minutes, Seconds

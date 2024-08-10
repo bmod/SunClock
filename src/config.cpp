@@ -70,7 +70,7 @@ const PanelData::TimeUnit& PanelData::timeUnit() const {
 const std::string& PanelData::displayName() const {
     return mAirport.iata;
 }
-PanelData::GeoLocation PanelData::geoCoordinate() const {
+GeoLocation PanelData::geoCoordinate() const {
     return {mAirport.latitude, mAirport.longitude};
 }
 
