@@ -128,9 +128,17 @@ vec3 rectToSpherical(vec2 uv) {
     return vec3(locX, locY, locZ);
 }
 
+float remap01(float v, float lo, float hi) {
+    return lo + v * (hi - lo);
+}
+
 void main() {
     vec2 uv = gl_TexCoord[0].xy;
-    vec3 ray = rectToSpherical(uv);
+    vec2 uvWindow = vec2(
+        remap01(1-uv.x, 0.4, 0.6),
+        uv.y / 4 + 0.25
+    );
+    vec3 ray = rectToSpherical(uvWindow);
 
     vec3 color = atmosphere(
         normalize(ray), // normalized ray direction
@@ -147,7 +155,7 @@ void main() {
     );
 
     // Apply exposure.
-    color = 1.0 - exp(-1.0 * color);
+    color = 1.0 - exp(-2 * color);
 
     //    gl_FragColor = vec4(gl_TexCoord[0].xy, 0, 1);
     //    gl_FragColor = vec4(color, 1);
