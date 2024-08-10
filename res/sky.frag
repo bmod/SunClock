@@ -118,7 +118,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 
 
 vec3 rectToSpherical(vec2 uv) {
-    float phi = uv.x * M_PI * 2;
+    float phi = uv.x * M_PI * 2.0;
     float theta = uv.y * M_PI;
 
     float locZ = sin(phi) * sin(-theta);
@@ -134,7 +134,7 @@ void main() {
 
     vec3 color = atmosphere(
         normalize(ray), // normalized ray direction
-        vec3(0, 6372e3, 0), // ray origin
+        vec3(0.0, 6372e3, 0.0), // ray origin
         sunDir, // position of the sun
         22.0, // intensity of the sun
         6371e3, // radius of the planet in meters
