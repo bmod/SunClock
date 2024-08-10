@@ -13,7 +13,6 @@
 constexpr int secondsInDay = 86400;
 
 int main(int argc, char* argv[]) {
-    LOG(INFO) << "Clock 2 SFML";
     Config conf;
     Clock clock(conf);
 
@@ -22,7 +21,6 @@ int main(int argc, char* argv[]) {
                             conf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default);
     window.setMouseCursorVisible(false);
     window.setVerticalSyncEnabled(true);
-    LOG(INFO) << "Resolution: " << window.getSize().x << ", " << window.getSize().y;
 
     while (window.isOpen()) {
 
@@ -51,7 +49,7 @@ int main(int argc, char* argv[]) {
                 currentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
             }
 
-            window.clear(sf::Color(0x334455FF));
+            window.clear(sf::Color::Black);
 
             clock.draw(window, currentTime);
 
