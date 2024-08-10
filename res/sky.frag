@@ -9,8 +9,8 @@ varying vec3 vPosition;
 #define M_PI 3.14159265358979323846
 
 //#define M_PI 3.141592
-#define iSteps 16
-#define jSteps 8
+#define iSteps 12
+#define jSteps 1
 
 vec2 rsi(vec3 r0, vec3 rd, float sr) {
     // ray-sphere intersection that assumes
