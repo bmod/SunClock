@@ -2,14 +2,13 @@
 
 #include <chrono>
 #include <cmath>
-#include <filesystem>
+#include <date/date.h>
 
 #include <SFML/Graphics.hpp>
 
 #include "config.h"
 #include "log.h"
 
-#include <date/date.h>
 
 constexpr int secondsInDay = 86400;
 
@@ -18,20 +17,15 @@ int main(int argc, char* argv[]) {
     Config conf;
     Clock clock(conf);
 
-    // Check
-    // if (sf::Shader::isAvailable()) {
-    //     LOG(INFO) << "No shaders available on this hardware";
-    // }
-
     // Create the window
-    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y),
-        "CLOCK",
-        conf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(conf.screenSize().x, conf.screenSize().y), "CLOCK",
+                            conf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default);
     window.setMouseCursorVisible(false);
     window.setVerticalSyncEnabled(true);
     LOG(INFO) << "Resolution: " << window.getSize().x << ", " << window.getSize().y;
 
     while (window.isOpen()) {
+
         sf::Event event{};
         while (window.pollEvent(event)) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
@@ -54,7 +48,7 @@ int main(int argc, char* argv[]) {
 
                 TimePoint startOfDay = std::chrono::floor<date::days>(currentTime);
 
-                currentTime = startOfDay + std::chrono::seconds(1) * int(xNormalized * secondsInDay / 0.9);
+                currentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
             }
 
             window.clear(sf::Color(0x334455FF));
@@ -63,6 +57,6 @@ int main(int argc, char* argv[]) {
 
             window.display();
         }
-    } //0.571428571
+    }
     return 0;
 }

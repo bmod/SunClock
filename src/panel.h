@@ -17,7 +17,7 @@ public:
 
 protected:
     std::string stringForBounds() const;
-    std::string bigText(TimePoint time);
+    std::string bigText(const TimePoint& time) const;
 
     const Config& mConfig;
     const PanelData& mData;

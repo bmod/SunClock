@@ -44,26 +44,21 @@ void Panel::draw(sf::RenderWindow& window) {
 
 void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
 
-    const auto coords = suncalc::sunCoords(currentTime, mData.geoCoordinate().first, mData.geoCoordinate().second, 1);
+    const auto coords = suncalc::sunCoords(currentTime, mData.geoCoordinate().latitude, mData.geoCoordinate().longitude, 1);
     const auto sunVector = suncalc::sunVector(coords);
     mShader.setUniform("sunDir", sunVector);
 
     mBigText.setString(bigText(currentTime));
     mSmallText.setString(mData.displayName());
 
-    float diagonal = sfutil::length(rect.getSize());
-
     mRectShape.setPosition(rect.getPosition());
     mRectShape.setSize(rect.getSize());
     mRectShape.setTextureRect({0, 0, 1, 1});
 
-    mShader.setUniform("resolution", rect.getSize());
-
-
     // Update layout
     {
-        auto textMargin = mConfig.textMargin();
-        sf::FloatRect contentRect{rect.left + textMargin, rect.top + textMargin, rect.width - textMargin * 2,
+        const auto textMargin = mConfig.textMargin();
+        const sf::FloatRect contentRect{rect.left + textMargin, rect.top + textMargin, rect.width - textMargin * 2,
                                   rect.height - textMargin * 2};
 
         // Measure with widest characters
@@ -108,20 +103,20 @@ std::string Panel::stringForBounds() const {
     return {};
 }
 
-std::string Panel::bigText(const TimePoint currentTime) {
+std::string Panel::bigText(const TimePoint& time) const {
     switch (mData.timeUnit()) {
         case PanelData::Seconds:
-            return date::format(":%S", time_point_cast<seconds>(currentTime));
+            return date::format(":%S", time_point_cast<seconds>(time));
 
         case PanelData::Minutes:
-            return date::format(":%M", time_point_cast<minutes>(currentTime));
+            return date::format(":%M", time_point_cast<minutes>(time));
 
         case PanelData::Hours: {
             if (mData.hasTimeZone()) {
-                auto t = date::make_zoned(mData.timeZoneName(), currentTime);
-                return date::format("%H", t);
+                const auto t = date::make_zoned(mData.timeZoneName(), time);
+                return format("%H", t);
             }
-            auto nowHours = time_point_cast<hours>(currentTime);
+            const auto nowHours = time_point_cast<hours>(time);
             return date::format(":%H", nowHours);
         }
     }
