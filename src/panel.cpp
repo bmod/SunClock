@@ -44,9 +44,13 @@ void Panel::draw(sf::RenderWindow& window) {
 
 void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
 
-    const auto coords = suncalc::sunCoords(currentTime, mData.geoCoordinate().latitude, mData.geoCoordinate().longitude, 1);
-    const auto sunVector = suncalc::sunVector(coords);
-    mShader.setUniform("sunDir", sunVector);
+    if (mData.hasTimeZone()) {
+        const float lat = mData.geoCoordinate().latitude;
+        const float lon = mData.geoCoordinate().longitude;
+        const auto coords = suncalc::sunCoords(currentTime, lat, lon, 1);
+        const auto sunVector = suncalc::sunVector(coords);
+        mShader.setUniform("sunDir", sunVector);
+    }
 
     mBigText.setString(bigText(currentTime));
     mSmallText.setString(mData.displayName());

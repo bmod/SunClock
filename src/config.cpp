@@ -23,12 +23,15 @@ AirportDB::AirportDB(const std::string& filePath) {
         if (jAirport.contains("timezone"))
             ap.timezone = jAirport["timezone"];
 
-        if (jAirport.contains("latitude"))
-            ap.latitude = jAirport["latitude"];
+        if (jAirport.contains("latitude_deg")) {
+            std::string lat = jAirport["latitude_deg"];
+            ap.latitude = std::stod(lat);
+        }
 
-        if (jAirport.contains("longitude"))
-            ap.longitude = jAirport["longitude"];
-
+        if (jAirport.contains("longitude_deg")) {
+            std::string lon = jAirport["longitude_deg"];
+            ap.longitude = std::stod(lon);
+        }
         mAirports.insert({ap.iata, ap});
     }
 }
