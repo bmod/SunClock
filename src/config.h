@@ -36,17 +36,19 @@ public:
         Hours, Minutes, Seconds
     };
 
-    explicit PanelData(const TimeUnit& unit, const Airport& airport);
+    explicit PanelData(const TimeUnit& unit, const Airport& airport, const sf::Color& bigTextColor);
 
     [[nodiscard]] bool hasTimeZone() const { return !timeZoneName().empty(); }
     [[nodiscard]] const std::string& timeZoneName() const;
     [[nodiscard]] const TimeUnit& timeUnit() const;
     [[nodiscard]] const std::string& displayName() const;
-    GeoLocation geoCoordinate() const;
+    [[nodiscard]] GeoLocation geoCoordinate() const;
+    [[nodiscard]] sf::Color bigTextColor() const;
 
 protected:
     const TimeUnit mUnit;
     const Airport mAirport;
+    const sf::Color mBigTextColor;
 };
 
 class Config
@@ -64,9 +66,11 @@ public:
     const sf::Font& fontMedium() const;
     const PanelDataList& panelDatas() const;
     const bool startFullscreen() const;
+    sf::Vector2f skyRangeX() const;
+    sf::Vector2f skyRangeY() const;
 
-    float margin() const { return 24; }
-    float spacing() const { return 8; }
+    float panelMargin() const { return 24; }
+    float panelSpacing() const { return 8; }
     float textMargin() const { return 18; }
 
 private:
@@ -75,6 +79,8 @@ private:
 
     sf::Vector2i mPanelCount;
     sf::Vector2i mScreenSize;
+    sf::Vector2f mSkyRangeX;
+    sf::Vector2f mSkyRangeY;
     sf::Font mFontLight;
     sf::Font mFontRegular;
     sf::Font mFontMedium;

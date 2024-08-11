@@ -3,8 +3,9 @@ Copy-pasted from https://github.com/wwwtyro/glsl-atmosphere/tree/master
 */
 
 uniform vec3 sunDir;
-//uniform vec2 resolution;
 varying vec3 vPosition;
+uniform vec2 skyRangeX;
+uniform vec2 skyRangeY;
 
 #define M_PI 3.14159265358979323846
 
@@ -134,10 +135,10 @@ float remap01(float v, float lo, float hi) {
 
 void main() {
     vec2 uv = gl_TexCoord[0].xy;
-    vec2 uvWindow = vec2(
-        remap01(1.0 - uv.x, 0.4, 0.6),
-        uv.y / 4.0 + 0.25
-    );
+    uv.x = 1.0 - uv.x; // flip horizontally
+    vec2 uvWindow = vec2(remap01(uv.x, skyRangeX.x, skyRangeX.y),
+                         remap01(uv.y, skyRangeY.x, skyRangeY.y));
+
     vec3 ray = rectToSpherical(uvWindow);
 
     vec3 color = atmosphere(

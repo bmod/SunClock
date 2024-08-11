@@ -7,6 +7,12 @@
     3,
     2
   ],
+  "skyWindow": [
+    0.4,
+    0.6,
+    0.25,
+    0.5
+  ],
   "startFullscreen": true,
   "panels": [
     {
@@ -20,7 +26,8 @@
       "timeZone": "Europe/Amsterdam"
     },
     {
-      "timeUnit": "minutes"
+      "timeUnit": "minutes",
+      "bigTextColor": "c2b999"
     },
     {
       "iata": "HKG",
@@ -33,7 +40,8 @@
       "timeZone": "Australia/Sydney"
     },
     {
-      "timeUnit": "seconds"
+      "timeUnit": "seconds",
+      "bigTextColor": "7795a8"
     }
   ]
 }

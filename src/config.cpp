@@ -8,6 +8,18 @@
 
 using json = nlohmann::json;
 
+sf::Color parseColorStr(const std::string& colStr) {
+    unsigned int number;
+    std::stringstream ss;
+    ss << std::hex << colStr;
+    ss >> number;
+    const int r = number >> 16 & 0xFF;
+    const int g = number >> 8 & 0xFF;
+    const int b = number & 0xFF;
+
+    return sf::Color(r, g, b);
+}
+
 AirportDB::AirportDB(const std::string& filePath) {
     if (!std::filesystem::exists(filePath)) {
         LOG(FATAL) << "File not found: " << filePath;
@@ -60,21 +72,27 @@ PanelData::TimeUnit timeUnit(const std::string& str) {
     return PanelData::Seconds;
 }
 
-PanelData::PanelData(const TimeUnit& unit, const Airport& airport)
-    : mUnit(unit), mAirport(airport) {
-}
+PanelData::PanelData(const TimeUnit& unit, const Airport& airport, const sf::Color& bigTextColor)
+    : mUnit(unit), mAirport(airport), mBigTextColor(bigTextColor) {}
 
 const std::string& PanelData::timeZoneName() const {
     return mAirport.timezone;
 }
+
 const PanelData::TimeUnit& PanelData::timeUnit() const {
     return mUnit;
 }
+
 const std::string& PanelData::displayName() const {
     return mAirport.iata;
 }
+
 GeoLocation PanelData::geoCoordinate() const {
     return {mAirport.latitude, mAirport.longitude};
+}
+
+sf::Color PanelData::bigTextColor() const {
+    return mBigTextColor;
 }
 
 Config::Config() {
@@ -117,8 +135,15 @@ const bool Config::startFullscreen() const {
     return mStartFullScreen;
 }
 
+sf::Vector2f Config::skyRangeX() const {
+    return mSkyRangeX;
+}
+
+sf::Vector2f Config::skyRangeY() const {
+    return mSkyRangeY;
+}
+
 void Config::loadFont(sf::Font& font, const char* fileName) {
-    LOG(INFO) << "Loading file: " << fileName;
     std::filesystem::path fontPath(fileName);
     if (!std::filesystem::exists(fileName)) {
         LOG(FATAL) << "File not found: " << fileName;
@@ -141,6 +166,10 @@ void Config::loadConfig() {
     mScreenSize.y = jData["displaySize"][1];
     mPanelCount.x = jData["panelCount"][0];
     mPanelCount.y = jData["panelCount"][1];
+    mSkyRangeX.x = jData["skyWindow"][0];
+    mSkyRangeX.y = jData["skyWindow"][1];
+    mSkyRangeY.x = jData["skyWindow"][2];
+    mSkyRangeY.y = jData["skyWindow"][3];
     mStartFullScreen = jData["startFullscreen"];
     const json::array_t& jPanels = jData["panels"];
 
@@ -151,11 +180,14 @@ void Config::loadConfig() {
     for (int i = 0, len = jPanels.size(); i < len; i++) {
         const auto& jPanel = jPanels[i];
         auto unit = timeUnit(jPanel["timeUnit"]);
-
         std::string iata = jPanel.contains("iata") ? jPanel["iata"] : "";
+
+        sf::Color col(sf::Color::White);
+        if (jPanel.contains("bigTextColor"))
+            col = parseColorStr(jPanel["bigTextColor"]);
 
         Airport ap;
         airports.getAirport(iata, ap);
-        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, ap));
+        mPanelTypes.emplace_back(std::make_unique<PanelData>(unit, ap, col));
     }
 }

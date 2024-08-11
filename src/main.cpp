@@ -7,8 +7,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "config.h"
-#include "log.h"
-
 
 constexpr int secondsInDay = 86400;
 

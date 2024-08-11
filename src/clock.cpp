@@ -35,8 +35,8 @@ sf::Rect<float> Clock::screenRect() const {
 
 
 sf::Rect<float> Clock::panelRectangle(int i) const {
-    const float margin = mConf.margin();
-    const float spacing = mConf.spacing();
+    const float margin = mConf.panelMargin();
+    const float spacing = mConf.panelSpacing();
     const int panelCountX = mConf.panelCount().x;
     const int panelCountY = mConf.panelCount().y;
 

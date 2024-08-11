@@ -15,13 +15,12 @@ using namespace std::chrono;
 
 Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(data) {
     mSmallText.setFont(mConfig.fontLight());
+    mBigText.setColor(mData.bigTextColor());
     mBigText.setFont(mConfig.fontMedium());
 
-    mRectShape.setOutlineColor(sf::Color(0xFF00FF55));
-    mRectShape.setOutlineThickness(1);
-    mRectShape.setFillColor(sf::Color(0x203040FF));
     mRectShape.setCornersRadius(10);
     mRectShape.setCornerPointCount(8);
+    mRectShape.setFillColor(sf::Color::Black);
 
     if (mData.hasTimeZone()) {
         if (!mShader.loadFromFile(sfutil::res("sky.vert"), sfutil::res("sky.frag"))) {
@@ -50,6 +49,8 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
         const auto coords = suncalc::sunCoords(currentTime, lat, lon, 1);
         const auto sunVector = suncalc::sunVector(coords);
         mShader.setUniform("sunDir", sunVector);
+        mShader.setUniform("skyRangeX", mConfig.skyRangeX());
+        mShader.setUniform("skyRangeY", mConfig.skyRangeY());
     }
 
     mBigText.setString(bigText(currentTime));
@@ -67,9 +68,6 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
 
         // Measure with widest characters
         mBigTextRect = sfutil::stringBounds(mBigText, stringForBounds());
-        // LOG(INFO) << "String for bounds: " << stringForBounds() << " (text: " << mBigText.getString().toAnsiString()
-        //           << ") --> bounds: " << mBigTextRect.left << ", " << mBigTextRect.top << ", " << mBigTextRect.width
-        //           << ", " << mBigTextRect.height;
 
         mBigText.setCharacterSize(110);
         float px = contentRect.left + contentRect.width - mBigTextRect.width;
