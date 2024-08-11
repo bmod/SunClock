@@ -155,9 +155,9 @@ void main() {
     );
 
     // Apply exposure.
-    color = 1.0 - exp(-2 * color);
+    color = 1.0 - exp(-2.0 * color);
 
     //    gl_FragColor = vec4(gl_TexCoord[0].xy, 0, 1);
     //    gl_FragColor = vec4(color, 1);
-    gl_FragColor = vec4(color, 1);
+    gl_FragColor = vec4(color, 1.0);
 }
