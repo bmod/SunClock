@@ -69,8 +69,8 @@ public:
     sf::Vector2f skyRangeX() const;
     sf::Vector2f skyRangeY() const;
 
-    float panelMargin() const { return 24; }
-    float panelSpacing() const { return 8; }
+    float panelMargin() const { return 16; }
+    float panelSpacing() const { return 12; }
     float textMargin() const { return 18; }
 
 private:
