@@ -35,23 +35,23 @@ int main(int argc, char* argv[]) {
                 window.setView(sf::View(visibleArea));
                 conf.setScreenSize(event.size.width, event.size.height);
             }
-
-            TimePoint currentTime = std::chrono::system_clock::now();
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                // Allow dragging to change the time quickly
-                auto mousePos = sf::Mouse::getPosition(window);
-                auto xNormalized = mousePos.x / static_cast<float>(window.getSize().x);
-
-                TimePoint startOfDay = std::chrono::floor<date::days>(currentTime);
-
-                currentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
-                clock.setSkyDirty(); // faster sky update while interacting
-            }
-
-            window.clear(sf::Color::Black);
-            clock.draw(window, currentTime);
-            window.display();
         }
+
+        TimePoint currentTime = std::chrono::system_clock::now();
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            // Allow dragging to change the time quickly
+            auto mousePos = sf::Mouse::getPosition(window);
+            auto xNormalized = mousePos.x / static_cast<float>(window.getSize().x);
+
+            TimePoint startOfDay = std::chrono::floor<date::days>(currentTime);
+
+            currentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
+            clock.setSkyDirty(); // faster sky update while interacting
+        }
+
+        window.clear(sf::Color::Black);
+        clock.draw(window, currentTime);
+        window.display();
     }
     return 0;
 }
