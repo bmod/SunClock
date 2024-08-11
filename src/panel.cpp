@@ -37,9 +37,11 @@ Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(d
 void Panel::renderSky() {
     const sf::Vector2 sizeInt = skyTextureSize();
     if (mSkyTexture.getSize() != sizeInt) {
+        LOG(INFO) << ">>> Recreate Texture";
         mSkyTexture.create(sizeInt.x, sizeInt.y);
         mSkyTexture.setSmooth(true);
     }
+    LOG(INFO) << ">>> Update Texture";
     sf::RectangleShape skyRect(mRectShape.getSize());
     skyRect.setPosition(0, 0);
     skyRect.setTextureRect({0, 0, 1, 1});
@@ -126,6 +128,7 @@ void Panel::setResolutionScale(const float scale) {
     if (mSkyResolutionScale == scale)
         return;
     mSkyResolutionScale = scale;
+    setSkyDirty();
 }
 
 std::string Panel::stringForBounds() const {
