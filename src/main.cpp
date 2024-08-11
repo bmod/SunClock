@@ -47,6 +47,9 @@ int main(int argc, char* argv[]) {
 
             currentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
             clock.setSkyDirty(); // faster sky update while interacting
+            clock.setResolutionScale(conf.skyResolutionScaleInteractive());
+        } else {
+            clock.setResolutionScale(conf.skyResolutionScale());
         }
 
         window.clear(sf::Color::Black);

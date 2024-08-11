@@ -78,6 +78,8 @@ public:
     sf::Time skyUpdateInterval() const {
         return mSkyUpdateInterval;
     }
+    float skyResolutionScale() const { return mSkyResolutionScale; }
+    float skyResolutionScaleInteractive() const { return mSkyResolutionScaleInteractive; }
 
 private:
     static void loadFont(sf::Font& font, const char* fileName);
@@ -85,9 +87,10 @@ private:
 
     sf::Vector2i mPanelCount;
     sf::Vector2i mScreenSize;
-    int mSkyResolution = 512;
     sf::Vector2f mSkyRangeX;
     sf::Vector2f mSkyRangeY;
+    float mSkyResolutionScale;
+    float mSkyResolutionScaleInteractive;
     sf::Font mFontLight;
     sf::Font mFontRegular;
     sf::Font mFontMedium;

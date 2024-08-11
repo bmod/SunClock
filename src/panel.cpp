@@ -35,8 +35,7 @@ Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(d
 }
 
 void Panel::renderSky() {
-    const auto size = mRectShape.getSize();
-    const sf::Vector2 sizeInt = {static_cast<unsigned int>(size.x), static_cast<unsigned int>(size.y)};
+    const sf::Vector2 sizeInt = skyTextureSize();
     if (mSkyTexture.getSize() != sizeInt) {
         mSkyTexture.create(sizeInt.x, sizeInt.y);
         mSkyTexture.setSmooth(true);
@@ -123,6 +122,12 @@ void Panel::setSkyDirty() {
     mSkyTextureDirty = true;
 }
 
+void Panel::setResolutionScale(const float scale) {
+    if (mSkyResolutionScale == scale)
+        return;
+    mSkyResolutionScale = scale;
+}
+
 std::string Panel::stringForBounds() const {
     switch (mData.timeUnit()) {
         case PanelData::Seconds:
@@ -152,4 +157,11 @@ std::string Panel::bigText(const TimePoint& time) const {
         }
     }
     return {};
+}
+
+sf::Vector2u Panel::skyTextureSize() const {
+    const auto size = mRectShape.getSize();
+    unsigned int width = std::round(size.x * mSkyResolutionScale);
+    unsigned int height = std::round(size.y * mSkyResolutionScale);
+    return {width, height};
 }

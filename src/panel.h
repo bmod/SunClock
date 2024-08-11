@@ -5,21 +5,22 @@
 #include "sfutil.h"
 
 
-class Panel
-{
+class Panel {
 public:
-
     explicit Panel(const Config& conf, const PanelData& data);
 
     void draw(sf::RenderTarget& renderTarget);
     void update(const TimePoint& currentTime, const sf::FloatRect& rect);
     void setSkyDirty();
+    void setResolutionScale(float scale);
 
 protected:
     void renderSky();
     std::string stringForBounds() const;
     std::string bigText(const TimePoint& time) const;
+
 private:
+    sf::Vector2u skyTextureSize() const;
 
     const Config& mConfig;
     const PanelData& mData;
@@ -34,5 +35,6 @@ private:
     sf::Shader mTexShader;
     sf::RenderTexture mSkyTexture;
     sf::Clock mSkyTextureClock;
-    bool mSkyTextureDirty = true; // TODO: Only for the first texture update, get rid of this stench
+    float mSkyResolutionScale;
+    bool mSkyTextureDirty = true;// TODO: Only for the first texture update, get rid of this stench
 };

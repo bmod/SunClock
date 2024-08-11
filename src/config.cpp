@@ -173,6 +173,8 @@ void Config::loadConfig() {
     mSkyRangeY.y = jData["skyWindow"][3];
     mStartFullScreen = jData["startFullscreen"];
     mSkyUpdateInterval = sf::seconds(jData["skyUpdateIntervalSeconds"]);
+    mSkyResolutionScale = jData["skyResolutionScale"];
+    mSkyResolutionScaleInteractive = jData["skyResolutionScaleInteractive"];
 
     // Process panel array
     const json::array_t& jPanels = jData["panels"];

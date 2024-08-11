@@ -8,6 +8,8 @@
     2
   ],
   "skyUpdateIntervalSeconds": 3,
+  "skyResolutionScale": 0.5,
+  "skyResolutionScaleInteractive": 0.2,
   "skyWindow": [
     0.4,
     0.6,

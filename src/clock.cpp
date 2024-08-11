@@ -26,6 +26,12 @@ void Clock::setSkyDirty() {
     }
 }
 
+void Clock::setResolutionScale(float scale) {
+    for (const auto& panel : mPanels) {
+        panel->setResolutionScale(scale);
+    }
+}
+
 void Clock::createPanels() {
     for (auto& pd: mConf.panelDatas()) mPanels.emplace_back(std::make_unique<Panel>(mConf, *pd));
 }
