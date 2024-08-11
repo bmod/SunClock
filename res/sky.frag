@@ -10,8 +10,8 @@ uniform vec2 skyRangeY;
 #define M_PI 3.14159265358979323846
 
 //#define M_PI 3.141592
-#define iSteps 12
-#define jSteps 1
+#define iSteps 32
+#define jSteps 16
 
 vec2 rsi(vec3 r0, vec3 rd, float sr) {
     // ray-sphere intersection that assumes
@@ -136,6 +136,7 @@ float remap01(float v, float lo, float hi) {
 void main() {
     vec2 uv = gl_TexCoord[0].xy;
     uv.x = 1.0 - uv.x; // flip horizontally
+    uv.y = 1.0 - uv.y; // flip vert, because I couldn't find how to flip the rendertexture
     vec2 uvWindow = vec2(remap01(uv.x, skyRangeX.x, skyRangeX.y),
                          remap01(uv.y, skyRangeY.x, skyRangeY.y));
 

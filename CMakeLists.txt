@@ -25,7 +25,7 @@ FetchContent_MakeAvailable(dategit)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
-#file(GLOB_RECURSE RESOURCES res/*.h)
+file(GLOB_RECURSE RESOURCES res/*)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${dategit_SOURCE_DIR}/src/tz.cpp)
 
@@ -33,19 +33,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics curl)
 target_include_directories(${PROJECT_NAME} PUBLIC ${nlohmann_json_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${dategit_SOURCE_DIR}/include)
 
-set(RESOURCES
-        config.json
-        airports.json
-        DMMono-Light.ttf
-        DMMono-Medium.ttf
-        DMMono-Regular.ttf
-        sky.frag
-        sky.vert
-)
 foreach (RES ${RESOURCES})
+    string(REPLACE ${CMAKE_CURRENT_LIST_DIR}/res "" RES_REL ${RES})
+
     configure_file(
-            ${CMAKE_CURRENT_LIST_DIR}/res/${RES}
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/${RES} COPYONLY
+            ${RES}
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/${RES_REL} COPYONLY
     )
 endforeach ()
 

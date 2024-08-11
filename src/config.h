@@ -28,17 +28,15 @@ struct GeoLocation {
     float longitude;
 };
 
-class PanelData
-{
+class PanelData {
 public:
-
-    enum TimeUnit {
-        Hours, Minutes, Seconds
-    };
+    enum TimeUnit { Hours, Minutes, Seconds };
 
     explicit PanelData(const TimeUnit& unit, const Airport& airport, const sf::Color& bigTextColor);
 
-    [[nodiscard]] bool hasTimeZone() const { return !timeZoneName().empty(); }
+    [[nodiscard]] bool hasTimeZone() const {
+        return !timeZoneName().empty();
+    }
     [[nodiscard]] const std::string& timeZoneName() const;
     [[nodiscard]] const TimeUnit& timeUnit() const;
     [[nodiscard]] const std::string& displayName() const;
@@ -51,8 +49,7 @@ protected:
     const sf::Color mBigTextColor;
 };
 
-class Config
-{
+class Config {
     using PanelDataList = std::vector<std::unique_ptr<PanelData>>;
 
 public:
@@ -69,9 +66,18 @@ public:
     sf::Vector2f skyRangeX() const;
     sf::Vector2f skyRangeY() const;
 
-    float panelMargin() const { return 16; }
-    float panelSpacing() const { return 12; }
-    float textMargin() const { return 18; }
+    float panelMargin() const {
+        return 16;
+    }
+    float panelSpacing() const {
+        return 12;
+    }
+    float textMargin() const {
+        return 18;
+    }
+    sf::Time skyUpdateInterval() const {
+        return mSkyUpdateInterval;
+    }
 
 private:
     static void loadFont(sf::Font& font, const char* fileName);
@@ -79,6 +85,7 @@ private:
 
     sf::Vector2i mPanelCount;
     sf::Vector2i mScreenSize;
+    int mSkyResolution = 512;
     sf::Vector2f mSkyRangeX;
     sf::Vector2f mSkyRangeY;
     sf::Font mFontLight;
@@ -86,4 +93,5 @@ private:
     sf::Font mFontMedium;
     PanelDataList mPanelTypes;
     bool mStartFullScreen;
+    sf::Time mSkyUpdateInterval;
 };

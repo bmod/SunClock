@@ -12,10 +12,10 @@
 using namespace std::chrono;
 
 
-
 Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(data) {
+
     mSmallText.setFont(mConfig.fontLight());
-    mBigText.setColor(mData.bigTextColor());
+    mBigText.setFillColor(mData.bigTextColor());
     mBigText.setFont(mConfig.fontMedium());
 
     mRectShape.setCornersRadius(10);
@@ -27,22 +27,47 @@ Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(d
             LOG(FATAL) << "Shader load error";
             exit(-1);
         }
+        if (!mTexShader.loadFromFile(sfutil::res("skyTexture.vert"), sfutil::res("skyTexture.frag"))) {
+            LOG(FATAL) << "Shader load error";
+            exit(-1);
+        }
     }
 }
 
-void Panel::draw(sf::RenderWindow& window) {
+void Panel::renderSky() {
+    const auto size = mRectShape.getSize();
+    const sf::Vector2 sizeInt = {static_cast<unsigned int>(size.x), static_cast<unsigned int>(size.y)};
+    if (mSkyTexture.getSize() != sizeInt) {
+        mSkyTexture.create(sizeInt.x, sizeInt.y);
+        mSkyTexture.setSmooth(true);
+    }
+    sf::RectangleShape skyRect(mRectShape.getSize());
+    skyRect.setPosition(0, 0);
+    skyRect.setTextureRect({0, 0, 1, 1});
+    mSkyTexture.draw(skyRect, &mShader);
+}
 
-    window.draw(mRectShape, &mShader);
-    window.draw(mSmallText);
+void Panel::draw(sf::RenderTarget& renderTarget) {
+    if (mSkyTextureDirty) {
+        renderSky();
+        mSkyTextureDirty = false;
+    }
 
-    // TODO: Remove this big guy altogether
-    // window.draw(mBigTextShape);
-
-    window.draw(mBigText);
+    mTexShader.setUniform("texture", mSkyTexture.getTexture());
+    renderTarget.draw(mRectShape, &mTexShader);
+    renderTarget.draw(mSmallText);
+    renderTarget.draw(mBigText);
 }
 
 void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
+    // === Sky
+    if (mSkyTextureClock.getElapsedTime() > mConfig.skyUpdateInterval()) {
+        mSkyTextureDirty = true;// Queue for redraw
+        mSkyTextureClock.restart();
+    }
 
+
+    // === Display Time:
     if (mData.hasTimeZone()) {
         const float lat = mData.geoCoordinate().latitude;
         const float lon = mData.geoCoordinate().longitude;
@@ -64,7 +89,7 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
     {
         const auto textMargin = mConfig.textMargin();
         const sf::FloatRect contentRect{rect.left + textMargin, rect.top + textMargin, rect.width - textMargin * 2,
-                                  rect.height - textMargin * 2};
+                                        rect.height - textMargin * 2};
 
         // Measure with widest characters
         mBigTextRect = sfutil::stringBounds(mBigText, stringForBounds());
@@ -92,6 +117,10 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
         mSmallText.setPosition(rect.left + textMargin,
                                rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
     }
+}
+
+void Panel::setSkyDirty() {
+    mSkyTextureDirty = true;
 }
 
 std::string Panel::stringForBounds() const {

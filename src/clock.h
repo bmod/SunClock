@@ -13,6 +13,7 @@ public:
 
     void update();
     void draw(sf::RenderWindow& window, const TimePoint& currentTime);
+    void setSkyDirty();
 
 private:
     void createPanels();

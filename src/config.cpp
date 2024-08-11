@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include <nlohmann/json.hpp>
 #include "log.h"
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
@@ -162,6 +162,7 @@ void Config::loadConfig() {
     std::ifstream is(filePath);
     const json& jData = json::parse(is);
 
+    // Read root items
     mScreenSize.x = jData["displaySize"][0];
     mScreenSize.y = jData["displaySize"][1];
     mPanelCount.x = jData["panelCount"][0];
@@ -171,14 +172,16 @@ void Config::loadConfig() {
     mSkyRangeY.x = jData["skyWindow"][2];
     mSkyRangeY.y = jData["skyWindow"][3];
     mStartFullScreen = jData["startFullscreen"];
+    mSkyUpdateInterval = sf::seconds(jData["skyUpdateIntervalSeconds"]);
+
+    // Process panel array
     const json::array_t& jPanels = jData["panels"];
 
     if (jPanels.size() != mPanelCount.x * mPanelCount.y) {
         LOG(FATAL) << "Panel count mismatch (check panelCount and number of defined panels)";
     }
 
-    for (int i = 0, len = jPanels.size(); i < len; i++) {
-        const auto& jPanel = jPanels[i];
+    for (const auto& jPanel: jPanels) {
         auto unit = timeUnit(jPanel["timeUnit"]);
         std::string iata = jPanel.contains("iata") ? jPanel["iata"] : "";
 

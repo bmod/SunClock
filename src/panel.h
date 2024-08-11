@@ -11,13 +11,15 @@ public:
 
     explicit Panel(const Config& conf, const PanelData& data);
 
-    void draw(sf::RenderWindow& window);
-
+    void draw(sf::RenderTarget& renderTarget);
     void update(const TimePoint& currentTime, const sf::FloatRect& rect);
+    void setSkyDirty();
 
 protected:
+    void renderSky();
     std::string stringForBounds() const;
     std::string bigText(const TimePoint& time) const;
+private:
 
     const Config& mConfig;
     const PanelData& mData;
@@ -29,4 +31,8 @@ protected:
     sf::FloatRect mSmallTextRect;
     sf::RectangleShape mSmallTextShape;
     sf::Shader mShader;
+    sf::Shader mTexShader;
+    sf::RenderTexture mSkyTexture;
+    sf::Clock mSkyTextureClock;
+    bool mSkyTextureDirty = true; // TODO: Only for the first texture update, get rid of this stench
 };
