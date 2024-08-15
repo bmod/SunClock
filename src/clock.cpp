@@ -6,10 +6,6 @@ Clock::Clock(const Config& conf): mConf(conf) {
     createPanels();
 }
 
-void Clock::update() {
-
-}
-
 void Clock::draw(sf::RenderWindow& window, const TimePoint& currentTime) {
     for (int i = 0, len = mPanels.size(); i < len; i++) {
         mPanels[i]->update(currentTime, panelRectangle(i));
@@ -26,7 +22,7 @@ void Clock::setSkyDirty() {
     }
 }
 
-void Clock::setResolutionScale(float scale) {
+void Clock::setResolutionScale(const float scale) {
     for (const auto& panel : mPanels) {
         panel->setResolutionScale(scale);
     }

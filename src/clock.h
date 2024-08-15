@@ -11,7 +11,6 @@ class Clock
 public:
     Clock(const Config& conf);
 
-    void update();
     void draw(sf::RenderWindow& window, const TimePoint& currentTime);
     void setSkyDirty();
     void setResolutionScale(float scale);

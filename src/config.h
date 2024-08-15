@@ -65,6 +65,7 @@ public:
     const bool startFullscreen() const;
     sf::Vector2f skyRangeX() const;
     sf::Vector2f skyRangeY() const;
+    float timeSpeed() const;
 
     float panelMargin() const {
         return 16;
@@ -75,11 +76,9 @@ public:
     float textMargin() const {
         return 18;
     }
-    sf::Time skyUpdateInterval() const {
-        return mSkyUpdateInterval;
-    }
-    float skyResolutionScale() const { return mSkyResolutionScale; }
-    float skyResolutionScaleInteractive() const { return mSkyResolutionScaleInteractive; }
+    sf::Time skyUpdateInterval() const;
+    float skyResolutionScale() const;
+    float skyResolutionScaleInteractive() const;
 
 private:
     static void loadFont(sf::Font& font, const char* fileName);
@@ -89,6 +88,8 @@ private:
     sf::Vector2i mScreenSize;
     sf::Vector2f mSkyRangeX;
     sf::Vector2f mSkyRangeY;
+    float mTimeSpeed;
+    bool mTimeDragEnabled;
     float mSkyResolutionScale;
     float mSkyResolutionScaleInteractive;
     sf::Font mFontLight;

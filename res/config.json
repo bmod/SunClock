@@ -7,8 +7,10 @@
     3,
     2
   ],
-  "skyUpdateIntervalSeconds": 3,
-  "skyResolutionScale": 0.5,
+  "timeSpeed": 8,
+  "timeDragEnabled": false,
+  "skyUpdateIntervalSeconds": 60,
+  "skyResolutionScale": 0.8,
   "skyResolutionScaleInteractive": 0.2,
   "skyWindow": [
     0.4,

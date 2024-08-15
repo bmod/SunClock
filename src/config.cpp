@@ -143,6 +143,22 @@ sf::Vector2f Config::skyRangeY() const {
     return mSkyRangeY;
 }
 
+float Config::timeSpeed() const {
+    return mTimeSpeed;
+}
+
+sf::Time Config::skyUpdateInterval() const {
+    return mSkyUpdateInterval;
+}
+
+float Config::skyResolutionScale() const {
+    return mSkyResolutionScale;
+}
+
+float Config::skyResolutionScaleInteractive() const {
+    return mSkyResolutionScaleInteractive;
+}
+
 void Config::loadFont(sf::Font& font, const char* fileName) {
     std::filesystem::path fontPath(fileName);
     if (!std::filesystem::exists(fileName)) {
@@ -172,6 +188,8 @@ void Config::loadConfig() {
     mSkyRangeY.x = jData["skyWindow"][2];
     mSkyRangeY.y = jData["skyWindow"][3];
     mStartFullScreen = jData["startFullscreen"];
+    mTimeSpeed = jData["timeSpeed"];
+    mTimeDragEnabled = jData["timeDragEnabled"];
     mSkyUpdateInterval = sf::seconds(jData["skyUpdateIntervalSeconds"]);
     mSkyResolutionScale = jData["skyResolutionScale"];
     mSkyResolutionScaleInteractive = jData["skyResolutionScaleInteractive"];
