@@ -146,6 +146,9 @@ sf::Vector2f Config::skyRangeY() const {
 float Config::timeSpeed() const {
     return mTimeSpeed;
 }
+bool Config::isDragTimeEnabled() const {
+    return mTimeDragEnabled;
+}
 
 sf::Time Config::skyUpdateInterval() const {
     return mSkyUpdateInterval;

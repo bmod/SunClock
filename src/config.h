@@ -66,6 +66,7 @@ public:
     sf::Vector2f skyRangeX() const;
     sf::Vector2f skyRangeY() const;
     float timeSpeed() const;
+    bool isDragTimeEnabled() const;
 
     float panelMargin() const {
         return 16;
