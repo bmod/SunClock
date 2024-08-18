@@ -150,6 +150,9 @@ bool Config::isDragTimeEnabled() const {
     return mTimeDragEnabled;
 }
 
+sf::Time Config::updateInterval() const {
+    return mUpdateInterval;
+}
 sf::Time Config::skyUpdateInterval() const {
     return mSkyUpdateInterval;
 }
@@ -160,6 +163,10 @@ float Config::skyResolutionScale() const {
 
 float Config::skyResolutionScaleInteractive() const {
     return mSkyResolutionScaleInteractive;
+}
+
+int Config::baseFrameRate() const {
+    return mBaseFrameRate;
 }
 
 void Config::loadFont(sf::Font& font, const char* fileName) {
@@ -193,7 +200,9 @@ void Config::loadConfig() {
     mStartFullScreen = jData["startFullscreen"];
     mTimeSpeed = jData["timeSpeed"];
     mTimeDragEnabled = jData["timeDragEnabled"];
+    mUpdateInterval = sf::seconds(jData["updateIntervalSeconds"]);
     mSkyUpdateInterval = sf::seconds(jData["skyUpdateIntervalSeconds"]);
+    mBaseFrameRate = jData["baseFrameRate"];
     mSkyResolutionScale = jData["skyResolutionScale"];
     mSkyResolutionScaleInteractive = jData["skyResolutionScaleInteractive"];
 

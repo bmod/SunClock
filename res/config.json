@@ -8,7 +8,9 @@
     2
   ],
   "timeSpeed": 8,
-  "timeDragEnabled": false,
+  "baseFrameRate": 8,
+  "timeDragEnabled": true,
+  "updateIntervalSeconds": 1,
   "skyUpdateIntervalSeconds": 60,
   "skyResolutionScale": 0.8,
   "skyResolutionScaleInteractive": 0.2,

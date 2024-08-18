@@ -77,9 +77,11 @@ public:
     float textMargin() const {
         return 18;
     }
+    sf::Time updateInterval() const;
     sf::Time skyUpdateInterval() const;
     float skyResolutionScale() const;
     float skyResolutionScaleInteractive() const;
+    int baseFrameRate() const;
 
 private:
     static void loadFont(sf::Font& font, const char* fileName);
@@ -98,5 +100,8 @@ private:
     sf::Font mFontMedium;
     PanelDataList mPanelTypes;
     bool mStartFullScreen;
+    int mBaseFrameRate;
+    sf::Time mUpdateInterval;
     sf::Time mSkyUpdateInterval;
+
 };

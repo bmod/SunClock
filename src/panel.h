@@ -36,5 +36,5 @@ private:
     sf::RenderTexture mSkyTexture;
     sf::Clock mSkyTextureClock;
     float mSkyResolutionScale;
-    bool mSkyTextureDirty = true;// TODO: Only for the first texture update, get rid of this stench
+    bool mSkyTextureDirty = true;
 };
