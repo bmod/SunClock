@@ -27,6 +27,12 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*)
 
+# NOTE: This just happened: https://github.com/HowardHinnant/date/issues/836
+# I don't want to spend time on it, so I'm just going to use the OS timezone Db, may not work in Windows
+add_compile_definitions(USE_OS_TZDB=1)
+# (old attempt for posterity)
+# add_compile_definitions(AUTO_DOWNLOAD=0) # Keep date.git from downloading an up-to-date timezone file
+
 add_executable(${PROJECT_NAME} ${SOURCES} ${dategit_SOURCE_DIR}/src/tz.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics curl)
