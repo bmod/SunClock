@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <iostream>
 
 
@@ -33,10 +34,12 @@ public:
     template <class T>
     LOG& operator<<(const T& msg)
     {
+
         if (msglevel >= level)
         {
+            std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
             auto& os = msglevel > WARN ? std::cerr : std::cout;
-            os << msg;
+            os << std::ctime(&end_time) << msg;
             opened = true;
         }
         return *this;

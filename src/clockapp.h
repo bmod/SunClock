@@ -1,7 +1,7 @@
 #include "clock.h"
 
-#include <chrono>
 #include <SFML/Graphics.hpp>
+#include <chrono>
 
 #include "config.h"
 
@@ -9,26 +9,42 @@
 
 constexpr int secondsInDay = 86400;
 
+class Timer {
+public:
+    Timer(const sf::Time& interval) : mInterval(interval) {}
+
+    void restart() {
+        mClock.restart();
+    }
+
+    bool hasElapsed() const {
+        return mClock.getElapsedTime() > mInterval;
+    }
+
+private:
+    sf::Time mInterval;
+    sf::Clock mClock;
+};
 
 class ClockApp {
 public:
     ClockApp();
 
-    bool isRunning();
+    bool isRunning() const;
     void update();
 
 private:
+    void handleInput();
     void updateFlags();
     void draw();
-    void handleInput();
 
     Config mConf;
     TimePoint mCurrentTime;
     Clock mClock;
     sf::RenderWindow mWindow;
 
-    sf::Clock mDrawTimer;
-    sf::Clock mSkyTimer;
+    Timer mDrawTimer;
+    Timer mSkyTimer;
 
     bool mIsDisplayDirty = true;
     bool mIsDragging = false && mConf.isDragTimeEnabled();

@@ -63,6 +63,7 @@ public:
     const sf::Font& fontMedium() const;
     const PanelDataList& panelDatas() const;
     const bool startFullscreen() const;
+    const bool drawSky() const;
     sf::Vector2f skyRangeX() const;
     sf::Vector2f skyRangeY() const;
     float timeSpeed() const;
@@ -100,8 +101,8 @@ private:
     sf::Font mFontMedium;
     PanelDataList mPanelTypes;
     bool mStartFullScreen;
+    bool mDrawSky;
     int mBaseFrameRate;
     sf::Time mUpdateInterval;
     sf::Time mSkyUpdateInterval;
-
 };

@@ -134,6 +134,9 @@ const Config::PanelDataList& Config::panelDatas() const {
 const bool Config::startFullscreen() const {
     return mStartFullScreen;
 }
+const bool Config::drawSky() const {
+    return mDrawSky;
+}
 
 sf::Vector2f Config::skyRangeX() const {
     return mSkyRangeX;
@@ -198,6 +201,7 @@ void Config::loadConfig() {
     mSkyRangeY.x = jData["skyWindow"][2];
     mSkyRangeY.y = jData["skyWindow"][3];
     mStartFullScreen = jData["startFullscreen"];
+    mDrawSky = jData["drawSky"];
     mTimeSpeed = jData["timeSpeed"];
     mTimeDragEnabled = jData["timeDragEnabled"];
     mUpdateInterval = sf::seconds(jData["updateIntervalSeconds"]);

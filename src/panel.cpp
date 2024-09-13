@@ -35,6 +35,7 @@ Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(d
 }
 
 void Panel::renderSky() {
+    LOG(DEBUG) << "Render Sky";
     const sf::Vector2 sizeInt = skyTextureSize();
     if (mSkyTexture.getSize() != sizeInt) {
         mSkyTexture.create(sizeInt.x, sizeInt.y);
@@ -47,13 +48,15 @@ void Panel::renderSky() {
 }
 
 void Panel::draw(sf::RenderTarget& renderTarget) {
-    if (mSkyTextureDirty) {
-        renderSky();
-        mSkyTextureDirty = false;
-    }
+    if (mConfig.drawSky()) {
+        if (mSkyTextureDirty) {
+            renderSky();
+            mSkyTextureDirty = false;
+        }
 
     mTexShader.setUniform("texture", mSkyTexture.getTexture());
     renderTarget.draw(mRectShape, &mTexShader);
+    }
     renderTarget.draw(mSmallText);
     renderTarget.draw(mBigText);
 }
@@ -108,16 +111,14 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
         mBigTextShape.setOutlineColor(sf::Color::Red);
         mBigTextShape.setFillColor(sf::Color::Transparent);
 
-
         mSmallTextRect = sfutil::stringBounds(mSmallText, mData.timeZoneName());
 
         mSmallText.setCharacterSize(45);
         const auto smallBB = mSmallTextRect;
         mSmallText.setPosition(rect.left + textMargin,
-                               rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
+            rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
     }
 }
-
 void Panel::setSkyDirty() {
     mSkyTextureDirty = true;
 }

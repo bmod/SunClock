@@ -12,67 +12,29 @@ float secondsSinceEpoch() {
     const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
 
     // return the number of seconds
-    return (float) ms.count() / 1000.0f;
+    return static_cast<float>(ms.count()) / 1000.0f;
 }
 
 ClockApp::ClockApp()
     : mClock(mConf), mWindow(sf::VideoMode(mConf.screenSize().x, mConf.screenSize().y), "CLOCK",
-                             mConf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default) {
+                             mConf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default), mDrawTimer(mConf.updateInterval()), mSkyTimer(mConf.skyUpdateInterval()) {
     mWindow.setFramerateLimit(mConf.baseFrameRate());
 }
-bool ClockApp::isRunning() {
+
+bool ClockApp::isRunning() const {
     return mWindow.isOpen();
 }
 
 void ClockApp::update() {
+    mCurrentTime = std::chrono::system_clock::now();
     handleInput();
     updateFlags();
     draw();
 }
-void ClockApp::updateFlags() {
-    if (mIsDragging) {
-        mCurrentTime = std::chrono::system_clock::now();
 
-        // Allow dragging to change the time quickly
-        const auto mousePos = sf::Mouse::getPosition(mWindow);
-        const auto xNormalized = mousePos.x / static_cast<float>(mWindow.getSize().x);
-
-        TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
-        // TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
-
-        mCurrentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
-        mClock.setSkyDirty();// faster sky update while interacting
-
-        mIsDisplayDirty = true;
-    }
-
-    if (mDrawTimer.getElapsedTime() > mConf.updateInterval()) {
-        mDrawTimer.restart();
-
-        mCurrentTime = std::chrono::system_clock::now();
-        mIsDisplayDirty = true;
-    }
-
-    if (mSkyTimer.getElapsedTime() > mConf.skyUpdateInterval()) {
-        mSkyTimer.restart();
-        mIsDisplayDirty = true;
-        mClock.setSkyDirty();
-    }
-}
-void ClockApp::draw() {
-    if (mIsDisplayDirty) {
-        mWindow.clear(sf::Color::Black);
-        mClock.draw(mWindow, mCurrentTime);
-        mWindow.display();
-        mIsDisplayDirty = false;
-    }
-}
 void ClockApp::handleInput() {
     sf::Event event{};
     while (mWindow.pollEvent(event)) {
-        // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-        //     window.close();
-
         switch (event.type) {
             case sf::Event::Closed: {
                 mWindow.close();
@@ -89,6 +51,7 @@ void ClockApp::handleInput() {
                 if (mConf.isDragTimeEnabled()) {
                     mIsDragging = true;
                     mClock.setResolutionScale(mConf.skyResolutionScaleInteractive());
+                    mWindow.setFramerateLimit(60);
                 }
                 break;
             }
@@ -96,7 +59,10 @@ void ClockApp::handleInput() {
                 if (mConf.isDragTimeEnabled()) {
                     mIsDragging = false;
                     mClock.setResolutionScale(mConf.skyResolutionScale());
+                    mWindow.setFramerateLimit(mConf.baseFrameRate());
                 }
+                mClock.setSkyDirty();
+                mIsDisplayDirty = true;
                 break;
             }
             case sf::Event::KeyPressed: {
@@ -106,5 +72,40 @@ void ClockApp::handleInput() {
                 break;
             }
         }
+    }
+}
+
+void ClockApp::updateFlags() {
+    if (mIsDragging) {
+        // Allow dragging to change the time quickly
+        const auto mousePos = sf::Mouse::getPosition(mWindow);
+        const auto xNormalized = mousePos.x / static_cast<float>(mWindow.getSize().x);
+
+        TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
+        // TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
+
+        mCurrentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
+        mClock.setSkyDirty();// faster sky update while interacting
+
+        mIsDisplayDirty = true;
+    }
+
+    if (mDrawTimer.hasElapsed()) {
+        mDrawTimer.restart();
+        mIsDisplayDirty = true;
+    }
+
+    if (mSkyTimer.hasElapsed()) {
+        mSkyTimer.restart();
+        mIsDisplayDirty = true;
+        mClock.setSkyDirty();
+    }
+}
+void ClockApp::draw() {
+    if (mIsDisplayDirty) {
+        mWindow.clear(sf::Color::Black);
+        mClock.draw(mWindow, mCurrentTime);
+        mWindow.display();
+        mIsDisplayDirty = false;
     }
 }
