@@ -17,8 +17,7 @@ float secondsSinceEpoch() {
 
 ClockApp::ClockApp()
     : mClock(mConf), mWindow(sf::VideoMode(mConf.screenSize().x, mConf.screenSize().y), "CLOCK",
-                             mConf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default),
-      mDrawTimer(mConf.updateInterval()), mSkyTimer(mConf.skyUpdateInterval()) {
+                             mConf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default) {
     mWindow.setFramerateLimit(mConf.baseFrameRate());
 }
 
@@ -93,16 +92,12 @@ void ClockApp::updateFlags() {
         mClock.setSkyDirty();// faster sky update while interacting
     }
 
-    if (mDrawTimer.hasElapsed()) {
-        mDrawTimer.restart();
-    }
-
-    if (mSkyTimer.hasElapsed()) {
+    if (mSkyTimer.getElapsedTime() > mConf.skyUpdateInterval()) {
         mSkyTimer.restart();
         mClock.setSkyDirty();
     }
 }
 void ClockApp::draw() {
-        mWindow.clear(sf::Color::Black);
-        mClock.draw(mWindow, mCurrentTime);
+    mWindow.clear(sf::Color::Black);
+    mClock.draw(mWindow, mCurrentTime);
 }
