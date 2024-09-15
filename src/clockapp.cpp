@@ -68,7 +68,6 @@ void ClockApp::handleInput() {
                     mWindow.setFramerateLimit(mConf.baseFrameRate());
                 }
                 mClock.setSkyDirty();
-                mIsDisplayDirty = true;
                 break;
             }
             case sf::Event::KeyPressed: {
@@ -92,25 +91,18 @@ void ClockApp::updateFlags() {
 
         mCurrentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
         mClock.setSkyDirty();// faster sky update while interacting
-
-        mIsDisplayDirty = true;
     }
 
     if (mDrawTimer.hasElapsed()) {
         mDrawTimer.restart();
-        mIsDisplayDirty = true;
     }
 
     if (mSkyTimer.hasElapsed()) {
         mSkyTimer.restart();
-        mIsDisplayDirty = true;
         mClock.setSkyDirty();
     }
 }
 void ClockApp::draw() {
-    if (mIsDisplayDirty) {
         mWindow.clear(sf::Color::Black);
         mClock.draw(mWindow, mCurrentTime);
-        mIsDisplayDirty = false;
-    }
 }

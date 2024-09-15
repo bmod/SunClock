@@ -46,7 +46,6 @@ private:
     Timer mDrawTimer;
     Timer mSkyTimer;
 
-    bool mIsDisplayDirty = true;
     bool mIsDragging = false && mConf.isDragTimeEnabled();
     bool mIsLeftButtonPressed = false;
 };
