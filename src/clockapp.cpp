@@ -17,7 +17,8 @@ float secondsSinceEpoch() {
 
 ClockApp::ClockApp()
     : mClock(mConf), mWindow(sf::VideoMode(mConf.screenSize().x, mConf.screenSize().y), "CLOCK",
-                             mConf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default), mDrawTimer(mConf.updateInterval()), mSkyTimer(mConf.skyUpdateInterval()) {
+                             mConf.startFullscreen() ? sf::Style::Fullscreen : sf::Style::Default),
+      mDrawTimer(mConf.updateInterval()), mSkyTimer(mConf.skyUpdateInterval()) {
     mWindow.setFramerateLimit(mConf.baseFrameRate());
 }
 
@@ -30,6 +31,11 @@ void ClockApp::update() {
     handleInput();
     updateFlags();
     draw();
+
+    // WARNING: This also syncs to vblank.
+    // If the display is not refreshed,
+    // the game loop will saturate a CPU thread with nonsense
+    mWindow.display();
 }
 
 void ClockApp::handleInput() {
@@ -105,7 +111,6 @@ void ClockApp::draw() {
     if (mIsDisplayDirty) {
         mWindow.clear(sf::Color::Black);
         mClock.draw(mWindow, mCurrentTime);
-        mWindow.display();
         mIsDisplayDirty = false;
     }
 }
