@@ -202,6 +202,7 @@ void Config::loadConfig() {
     mSkyRangeY.y = jData["skyWindow"][3];
     mStartFullScreen = jData["startFullscreen"];
     mDrawSky = jData["drawSky"];
+    mDrawSky = jData["drawText"];
     mTimeSpeed = jData["timeSpeed"];
     mTimeDragEnabled = jData["timeDragEnabled"];
     mUpdateInterval = sf::seconds(jData["updateIntervalSeconds"]);

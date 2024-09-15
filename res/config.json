@@ -11,6 +11,7 @@
   "baseFrameRate": 8,
   "timeDragEnabled": true,
   "updateIntervalSeconds": 1,
+
   "skyUpdateIntervalSeconds": 60,
   "skyResolutionScale": 0.8,
   "skyResolutionScaleInteractive": 0.2,
@@ -21,7 +22,8 @@
     0.5
   ],
   "startFullscreen": false,
-  "drawSky": false,
+  "drawSky": true,
+  "drawText": true,
   "panels": [
     {
       "iata": "LAX",

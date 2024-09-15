@@ -102,6 +102,7 @@ private:
     PanelDataList mPanelTypes;
     bool mStartFullScreen;
     bool mDrawSky;
+    bool mDrawText;
     int mBaseFrameRate;
     sf::Time mUpdateInterval;
     sf::Time mSkyUpdateInterval;
