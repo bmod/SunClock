@@ -23,9 +23,25 @@ vec2 rsi(vec3 r0, vec3 rd, float sr) {
     float d = (b * b) - 4.0 * a * c;
     if (d < 0.0) return vec2(1e5, -1e5);
     return vec2(
-        (-b - sqrt(d)) / (2.0 * a),
-        (-b + sqrt(d)) / (2.0 * a)
+    (-b - sqrt(d)) / (2.0 * a),
+    (-b + sqrt(d)) / (2.0 * a)
     );
+}
+
+// vibrance in range [-1, 1].. usually, do whaterver of course
+vec3 vibrance(vec3 color, float amount) {
+    float luminance = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+    float mn = min(min(color.r, color.g), color.b);
+    float mx = max(max(color.r, color.g), color.b);
+    float sat = (1.0 - (mx - mn)) * (1.0 - mx) * luminance * 5.0;
+    vec3 lightness = vec3((mn + mx) / 2.0);
+
+    if (amount >= 0.0) {
+        color = mix(color, mix(color, lightness, -amount), sat);
+    } else {
+        color = mix(color, lightness, (1.0 - lightness) * (1.0 - amount) / 2.0 * abs(amount));
+    }
+    return color;
 }
 
 vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {
@@ -138,7 +154,7 @@ void main() {
     uv.x = 1.0 - uv.x; // flip horizontally
     uv.y = 1.0 - uv.y; // flip vert, because I couldn't find how to flip the rendertexture
     vec2 uvWindow = vec2(remap01(uv.x, skyRangeX.x, skyRangeX.y),
-                         remap01(uv.y, skyRangeY.x, skyRangeY.y));
+    remap01(uv.y, skyRangeY.x, skyRangeY.y));
 
     vec3 ray = rectToSpherical(uvWindow);
 
@@ -157,7 +173,9 @@ void main() {
     );
 
     // Apply exposure.
-    color = 1.0 - exp(-2.0 * color);
+//    color = 1.0 - exp(-2.0 * color);
+
+    color = vibrance(color, 0.8);
 
     //    gl_FragColor = vec4(gl_TexCoord[0].xy, 0, 1);
     //    gl_FragColor = vec4(color, 1);
