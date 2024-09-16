@@ -35,7 +35,6 @@ Panel::Panel(const Config& conf, const PanelData& data) : mConfig(conf), mData(d
 }
 
 void Panel::renderSky() {
-    LOG(DEBUG) << "Render Sky";
     const sf::Vector2 sizeInt = skyTextureSize();
     if (mSkyTexture.getSize() != sizeInt) {
         mSkyTexture.create(sizeInt.x, sizeInt.y);
