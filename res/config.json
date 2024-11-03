@@ -12,7 +12,7 @@
   "timeDragEnabled": true,
   "updateIntervalSeconds": 1,
 
-  "skyUpdateIntervalSeconds": 60,
+  "skyUpdateIntervalSeconds": 10,
   "skyResolutionScale": 0.8,
   "skyResolutionScaleInteractive": 0.2,
   "skyWindow": [
@@ -21,7 +21,7 @@
     0.25,
     0.5
   ],
-  "startFullscreen": true,
+  "startFullscreen": false,
   "drawSky": true,
   "drawText": true,
   "panels": [
