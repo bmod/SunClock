@@ -1,6 +1,7 @@
 #include "clockapp.h"
 
 #include "date/date.h"
+#include "log.h"
 
 float secondsSinceEpoch() {
     const auto now = std::chrono::system_clock::now();
@@ -85,7 +86,7 @@ void ClockApp::updateFlags() {
         const auto mousePos = sf::Mouse::getPosition(mWindow);
         const auto xNormalized = mousePos.x / static_cast<float>(mWindow.getSize().x);
 
-        TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
+        const TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
         // TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
 
         mCurrentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
@@ -94,6 +95,7 @@ void ClockApp::updateFlags() {
 
     if (mSkyTimer.getElapsedTime() > mConf.skyUpdateInterval()) {
         mSkyTimer.restart();
+        LOG(DEBUG) << "Sky Update";
         mClock.setSkyDirty();
     }
 }
