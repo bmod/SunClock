@@ -36,10 +36,10 @@ public:
 private:
     void handleInput();
     void updateFlags();
+    TimePoint currentTime() const;
     void draw();
 
     Config mConf;
-    TimePoint mCurrentTime;
     Clock mClock;
     sf::RenderWindow mWindow;
 
