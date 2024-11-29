@@ -44,6 +44,9 @@ void Panel::renderSky() {
     skyRect.setPosition(0, 0);
     skyRect.setTextureRect({0, 0, 1, 1});
     mSkyTexture.draw(skyRect, &mShader);
+    // According to the manual this is necessary sometimes...
+    // https://www.sfml-dev.org/documentation/2.6.2/classsf_1_1RenderTexture.php#af92886d5faef3916caff9fa9ab32c555
+    mSkyTexture.display();
 }
 
 void Panel::draw(sf::RenderTarget& renderTarget) {
