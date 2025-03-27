@@ -53,21 +53,14 @@ void Panel::draw(sf::RenderTarget& renderTarget) {
             mSkyTextureDirty = false;
         }
 
-    mTexShader.setUniform("texture", mSkyTexture.getTexture());
-    renderTarget.draw(mRectShape, &mTexShader);
+        mTexShader.setUniform("texture", mSkyTexture.getTexture());
+        renderTarget.draw(mRectShape, &mTexShader);
     }
     renderTarget.draw(mSmallText);
     renderTarget.draw(mBigText);
 }
 
 void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
-    // === Sky
-    if (mSkyTextureClock.getElapsedTime() > mConfig.skyUpdateInterval()) {
-        mSkyTextureDirty = true;// Queue for redraw
-        mSkyTextureClock.restart();
-    }
-
-
     // === Display Time:
     if (mData.hasTimeZone()) {
         const float lat = mData.geoCoordinate().latitude;
@@ -115,7 +108,7 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
         mSmallText.setCharacterSize(45);
         const auto smallBB = mSmallTextRect;
         mSmallText.setPosition(rect.left + textMargin,
-            rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
+                               rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
     }
 }
 void Panel::setSkyDirty() {

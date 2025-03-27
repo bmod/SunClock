@@ -90,14 +90,8 @@ void ClockApp::updateFlags() {
         // TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
 
         mCurrentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
-        mClock.setSkyDirty();// faster sky update while interacting
     }
-
-    if (mSkyTimer.getElapsedTime() > mConf.skyUpdateInterval()) {
-        mSkyTimer.restart();
-        LOG(DEBUG) << "Sky Update";
-        mClock.setSkyDirty();
-    }
+    mClock.setSkyDirty();// faster sky update while interacting
 }
 void ClockApp::draw() {
     mWindow.clear(sf::Color::Black);

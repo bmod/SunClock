@@ -34,7 +34,7 @@ private:
     sf::Shader mShader;
     sf::Shader mTexShader;
     sf::RenderTexture mSkyTexture;
-    sf::Clock mSkyTextureClock;
     float mSkyResolutionScale = 1;
     bool mSkyTextureDirty = true;
+    bool mTextDirty = true;
 };
