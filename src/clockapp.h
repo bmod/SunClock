@@ -43,8 +43,6 @@ private:
     Clock mClock;
     sf::RenderWindow mWindow;
 
-    sf::Clock mSkyTimer;
-
     bool mIsDragging = false && mConf.isDragTimeEnabled();
     bool mIsLeftButtonPressed = false;
 };

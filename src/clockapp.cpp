@@ -28,7 +28,7 @@ bool ClockApp::isRunning() const {
 
 void ClockApp::update() {
     handleInput();
-    updateFlags();
+    mClock.setSkyDirty();
     draw();
 
     // WARNING: This also syncs to vblank.
@@ -80,16 +80,6 @@ void ClockApp::handleInput() {
 }
 
 void ClockApp::updateFlags() {
-    if (mIsDragging) {
-        // Allow dragging to change the time quickly
-        const auto mousePos = sf::Mouse::getPosition(mWindow);
-        const auto xNormalized = mousePos.x / static_cast<float>(mWindow.getSize().x);
-
-        const TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
-        // TimePoint startOfDay = std::chrono::floor<date::days>(mCurrentTime);
-
-        mCurrentTime = startOfDay + std::chrono::seconds(1) * static_cast<int>(xNormalized * secondsInDay / 0.9);
-    }
     mClock.setSkyDirty();// faster sky update while interacting
 }
 
