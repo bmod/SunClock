@@ -134,9 +134,6 @@ const Config::PanelDataList& Config::panelDatas() const {
 const bool Config::startFullscreen() const {
     return mStartFullScreen;
 }
-const bool Config::drawSky() const {
-    return mDrawSky;
-}
 
 sf::Vector2f Config::skyRangeX() const {
     return mSkyRangeX;

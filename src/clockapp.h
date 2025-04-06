@@ -35,7 +35,6 @@ public:
 
 private:
     void handleInput();
-    void updateFlags();
     TimePoint currentTime() const;
     void draw();
 

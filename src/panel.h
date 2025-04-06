@@ -11,7 +11,6 @@ public:
 
     void draw(sf::RenderTarget& renderTarget);
     void update(const TimePoint& currentTime, const sf::FloatRect& rect);
-    void setSkyDirty();
     void setResolutionScale(float scale);
 
 protected:
@@ -35,6 +34,4 @@ private:
     sf::Shader mTexShader;
     sf::RenderTexture mSkyTexture;
     float mSkyResolutionScale = 1;
-    bool mSkyTextureDirty = true;
-    bool mTextDirty = true;
 };

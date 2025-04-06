@@ -28,7 +28,6 @@ bool ClockApp::isRunning() const {
 
 void ClockApp::update() {
     handleInput();
-    mClock.setSkyDirty();
     draw();
 
     // WARNING: This also syncs to vblank.
@@ -66,7 +65,6 @@ void ClockApp::handleInput() {
                     mClock.setResolutionScale(mConf.skyResolutionScale());
                     mWindow.setFramerateLimit(mConf.baseFrameRate());
                 }
-                mClock.setSkyDirty();
                 break;
             }
             case sf::Event::KeyPressed: {
@@ -77,10 +75,6 @@ void ClockApp::handleInput() {
             }
         }
     }
-}
-
-void ClockApp::updateFlags() {
-    mClock.setSkyDirty();// faster sky update while interacting
 }
 
 TimePoint ClockApp::currentTime() const {

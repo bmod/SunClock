@@ -50,15 +50,9 @@ void Panel::renderSky() {
 }
 
 void Panel::draw(sf::RenderTarget& renderTarget) {
-    if (mConfig.drawSky()) {
-        if (mSkyTextureDirty) {
-            renderSky();
-            mSkyTextureDirty = false;
-        }
-
-        mTexShader.setUniform("texture", mSkyTexture.getTexture());
-        renderTarget.draw(mRectShape, &mTexShader);
-    }
+    renderSky();
+    mTexShader.setUniform("texture", mSkyTexture.getTexture());
+    renderTarget.draw(mRectShape, &mTexShader);
     renderTarget.draw(mSmallText);
     renderTarget.draw(mBigText);
 }
@@ -114,15 +108,11 @@ void Panel::update(const TimePoint& currentTime, const sf::FloatRect& rect) {
                                rect.top + rect.height - smallBB.top - smallBB.height - textMargin);
     }
 }
-void Panel::setSkyDirty() {
-    mSkyTextureDirty = true;
-}
 
 void Panel::setResolutionScale(const float scale) {
     if (mSkyResolutionScale == scale)
         return;
     mSkyResolutionScale = scale;
-    setSkyDirty();
 }
 
 std::string Panel::stringForBounds() const {

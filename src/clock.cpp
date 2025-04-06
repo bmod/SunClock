@@ -16,12 +16,6 @@ void Clock::draw(sf::RenderWindow& window, const TimePoint& currentTime) {
     }
 }
 
-void Clock::setSkyDirty() {
-    for (const auto& panel: mPanels) {
-        panel->setSkyDirty();
-    }
-}
-
 void Clock::setResolutionScale(const float scale) {
     for (const auto& panel : mPanels) {
         panel->setResolutionScale(scale);
