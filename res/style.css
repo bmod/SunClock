@@ -1,0 +1,12 @@
+QMainWindow {
+    background-color: #000;
+}
+
+QWidget {
+    font-family: "DM Mono", monospace;
+}
+
+QLabel {
+    font-size: 30px;
+    color: white;
+}

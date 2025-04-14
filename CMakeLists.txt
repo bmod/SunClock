@@ -7,22 +7,6 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 include(FetchContent)
 
-FetchContent_Declare(SFML
-        GIT_REPOSITORY https://github.com/SFML/SFML.git
-        GIT_TAG 2.6.x)
-FetchContent_MakeAvailable(SFML)
-
-FetchContent_Declare(nlohmann_json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.11.3)
-FetchContent_MakeAvailable(nlohmann_json)
-
-FetchContent_Declare(dategit
-        GIT_REPOSITORY https://github.com/HowardHinnant/date.git
-        GIT_TAG v3.0.1)
-FetchContent_MakeAvailable(dategit)
-
-
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*)
@@ -33,25 +17,72 @@ add_compile_definitions(USE_OS_TZDB=1)
 # (old attempt for posterity)
 # add_compile_definitions(AUTO_DOWNLOAD=0) # Keep date.git from downloading an up-to-date timezone file
 
-add_executable(${PROJECT_NAME} ${SOURCES} ${dategit_SOURCE_DIR}/src/tz.cpp)
+set(DEPLOY_DIR ${CMAKE_CACHEFILE_DIR})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics curl)
-target_include_directories(${PROJECT_NAME} PUBLIC ${nlohmann_json_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${dategit_SOURCE_DIR}/include)
+project(PiClock)
 
-foreach (RES ${RESOURCES})
-    string(REPLACE ${CMAKE_CURRENT_LIST_DIR}/res "" RES_REL ${RES})
+set(_qt_bin_dir ${Qt5_DIR}/../../../bin)
+#get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
+#get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+#include(raspberrypi-tools.cmake)
 
-    configure_file(
-            ${RES}
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/${RES_REL} COPYONLY
-    )
-endforeach ()
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
+
+find_package(Qt5 COMPONENTS
+        Core
+        Gui
+        Widgets
+        REQUIRED)
+
+file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE HEADERS src/*.h)
+file(GLOB_RECURSE RESOURCES res/*.qrc)
+add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE src)
+target_link_libraries(${PROJECT_NAME}
+        Qt::Core
+        Qt::Gui
+        Qt::Widgets
+)
+
+
+
+# Core libraries, for windows
 if (WIN32)
-    add_custom_command(
-            TARGET ${PROJECT_NAME}
-            COMMENT "Copy OpenAL DLL"
-            PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:main>
-            VERBATIM)
+    if (MSVC)
+    else ()
+        set(STD_DLLS
+                libstdc++-6.dll
+                libgcc_s_seh-1.dll
+                libwinpthread-1.dll
+        )
+        foreach (DLLNAME ${STD_DLLS})
+            configure_file(${_qt_bin_dir}/${DLLNAME}
+                    ${DEPLOY_DIR}/${DLLNAME}
+                    COPYONLY)
+        endforeach ()
+    endif ()
 endif ()
+
+# ====== QT
+if (WIN32)
+    set(EXE_BIN ${PROJECT_NAME}.exe)
+    string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND "${_qt_bin_dir}/windeployqt.exe"
+            --verbose 1
+            --no-svg
+            --no-compiler-runtime
+            --dir "${DEPLOY_DIR}"
+            \"$<TARGET_FILE:${PROJECT_NAME}>\"
+            COMMENT "Deploying Qt libraries using windeployqt for compilation target '${PROJECT_NAME}' (${CMAKE_BUILD_TYPE_LOWER}) in ${DEPLOY_DIR}"
+    )
+endif ()
+#install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+#install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin COMPONENT Runtime)
+
+

@@ -1,57 +1,22 @@
 {
-  "displaySize": [
-    800,
-    480
-  ],
-  "panelCount": [
-    3,
-    2
-  ],
-  "timeSpeed": 8,
-  "baseFrameRate": 8,
-  "timeDragEnabled": true,
-  "updateIntervalSeconds": 1,
-
-  "skyUpdateIntervalSeconds": 10,
-  "skyResolutionScale": 0.8,
-  "skyResolutionScaleInteractive": 0.2,
-  "skyWindow": [
-    0.4,
-    0.6,
-    0.25,
-    0.5
-  ],
-  "startFullscreen": false,
-  "drawSky": true,
-  "drawText": true,
-  "panels": [
+  "clocks": [
     {
-      "iata": "LAX",
-      "timeUnit": "hours",
-      "timeZone": "America/Los_Angeles"
+      "timezone": "America/Los_Angeles"
     },
     {
-      "iata": "AMS",
-      "timeUnit": "hours",
-      "timeZone": "Europe/Amsterdam"
+      "timezone": "America/New_York"
     },
     {
-      "timeUnit": "minutes",
-      "bigTextColor": "cfaf6e"
+      "timezone": "Europe/London"
     },
     {
-      "iata": "HKG",
-      "timeUnit": "hours",
-      "timeZone": "Asia/Hong_Kong"
+      "timezone": "Europe/Amsterdam"
     },
     {
-      "iata": "SYD",
-      "timeUnit": "hours",
-      "timeZone": "Australia/Sydney"
+      "timezone": "Asia/Hong_Kong"
     },
     {
-      "timeUnit": "seconds",
-      "bigTextColor": "7795a8"
+      "timezone": "Australia/Sydney"
     }
   ]
 }
