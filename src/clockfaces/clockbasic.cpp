@@ -14,6 +14,8 @@ ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
     setStyleSheet(file.readAll());
 
     setLayout(&mLayout);
+    mLayout.setContentsMargins(0, 0, 0, 0);
+    mLayout.setSpacing(0);
     mLayout.addWidget(&mGraphicsView);
     mGraphicsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mGraphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -22,10 +24,10 @@ ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
     QFont font("DM Mono");
     font.setBold(true);
 
-    const auto colDark = QColor::fromHslF(0, 0, 0.1);
-    const auto colMedium = QColor::fromHslF(0, 0, 0.2);
-    const auto colStrong = QColor::fromHslF(0, 0, 0.5);
-    const auto colLight = QColor::fromHslF(0, 0, 0.7);
+    const auto colDark = QColor("#345");
+    const auto colMedium = QColor("#557");
+    const auto colStrong = QColor("#A86");
+    const auto colLight = QColor("#FED");
 
     mHoursTextItem.setDefaultTextColor(colLight);
     mHoursTextItem.setFont(font);
@@ -68,6 +70,7 @@ void ClockBasic::setTime(QDateTime timeUtc) {
     mDateTextItem.setHtml(dtLocal.toString("yyyy-<font color=\"#F00\">MM</font>-dd"));
     mDateTextItem.setPlainText(dtLocal.toString("yyyy-MM-dd"));
 
+    constexpr qreal scaleXLarge = 1.618 * 1.618;
     constexpr qreal scaleLarge = 1.618 * 1.618;
     constexpr qreal scaleMedium = 1;
     constexpr qreal scaleSmall = 1/1.618;
