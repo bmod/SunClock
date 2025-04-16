@@ -24,9 +24,9 @@ ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
     QFont font("DM Mono");
     font.setBold(true);
 
-    const auto colDark = QColor("#345");
-    const auto colMedium = QColor("#557");
-    const auto colStrong = QColor("#A86");
+    const auto colDark = QColor("#567");
+    const auto colMedium = QColor("#889");
+    const auto colStrong = QColor("#ECA");
     const auto colLight = QColor("#FED");
 
     mHoursTextItem.setDefaultTextColor(colLight);
@@ -71,15 +71,15 @@ void ClockBasic::setTime(QDateTime timeUtc) {
     mDateTextItem.setPlainText(dtLocal.toString("yyyy-MM-dd"));
 
     constexpr qreal scaleXLarge = 1.618 * 1.618;
-    constexpr qreal scaleLarge = 1.618 * 1.618;
+    constexpr qreal scaleLarge = 1.618 ;
     constexpr qreal scaleMedium = 1;
     constexpr qreal scaleSmall = 1/1.618;
 
-    mDateTextItem.setScale(scaleMedium);
-    mHoursTextItem.setScale(scaleLarge);
+    mDateTextItem.setScale(scaleSmall);
+    mHoursTextItem.setScale(scaleXLarge);
     mColonTextItem.setScale(scaleLarge);
     mMinutesTextItem.setScale(scaleLarge);
-    mTimeZoneTextItem.setScale(scaleMedium);
+    mTimeZoneTextItem.setScale(scaleSmall);
 
     qreal y = 0;
 
@@ -87,9 +87,9 @@ void ClockBasic::setTime(QDateTime timeUtc) {
 
     y += 5;
 
-    mHoursTextItem.setPos(0, y);
-    mColonTextItem.setPos(46, y);
-    mMinutesTextItem.setPos(65, y);
+    mHoursTextItem.setPos(0, 5);
+    mColonTextItem.setPos(52, y + 7);
+    mMinutesTextItem.setPos(65, y + 10);
 
     y += 55;
 
