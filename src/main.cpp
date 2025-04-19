@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
     Config conf;
 
     MainWindow win(conf);
-    win.resize(800, 480);
-    win.show();
-    // win.showFullScreen();
+    // win.resize(800, 480);
+    // win.show();
+    win.showFullScreen();
     return app.exec();
 }
