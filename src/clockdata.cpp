@@ -13,6 +13,7 @@ void ClockData::setTime(const QDateTime& timeUtc) {
     mCurrentTime = timeUtc;
     changed();
 }
+
 const QDateTime& ClockData::currentTime() const {
     return mCurrentTime;
 }

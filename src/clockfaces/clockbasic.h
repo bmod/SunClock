@@ -2,6 +2,7 @@
 
 #include <QVBoxLayout>
 #include <QGraphicsTextItem>
+#include <QtOpenGL/QGLWidget>
 
 #include <config.h>
 

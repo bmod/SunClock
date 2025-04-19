@@ -17,10 +17,12 @@ public:
 
 
 private:
-    void onTimer();
+    void updateTime();
     void onTileActivated(int index);
     void toggleClockFace(int faceIndex);
     QList<AbstractClockFace*> createClockFaces(const ClockData& data);
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     QTimer mTimer;

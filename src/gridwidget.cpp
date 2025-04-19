@@ -49,3 +49,4 @@ void GridWidget::mouseReleaseEvent(QMouseEvent* event) {
     if (cellIndex >= 0)
         tileClicked(cellIndex);
 }
+

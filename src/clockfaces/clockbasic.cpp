@@ -20,11 +20,14 @@ ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
     mGraphicsView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mGraphicsView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mGraphicsView.setScene(&mScene);
+    mGraphicsView.setBackgroundBrush(QBrush(Qt::black));
+    // mGraphicsView.setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+    mGraphicsView.setViewport(new QGLWidget(QGLFormat(QGL::SingleBuffer)));
 
     QFont font("DM Mono");
     font.setBold(true);
 
-    const auto colDark = QColor("#567");
+    const auto colDark = QColor("#79B");
     const auto colMedium = QColor("#889");
     const auto colStrong = QColor("#ECA");
     const auto colLight = QColor("#FED");
@@ -67,19 +70,19 @@ void ClockBasic::setTime(QDateTime timeUtc) {
     mColonTextItem.setVisible(isEven);
     mHoursTextItem.setPlainText(dtLocal.toString("HH"));
     mMinutesTextItem.setPlainText(dtLocal.toString("mm"));
-    mDateTextItem.setHtml(dtLocal.toString("yyyy-<font color=\"#F00\">MM</font>-dd"));
-    mDateTextItem.setPlainText(dtLocal.toString("yyyy-MM-dd"));
+    mDateTextItem.setHtml(dtLocal.toString("yyyy <font color=\"#F00\">MM</font> dd"));
+    // mDateTextItem.setPlainText(dtLocal.toString("yyyy-MM-dd"));
 
     constexpr qreal scaleXLarge = 1.618 * 1.618;
     constexpr qreal scaleLarge = 1.618 ;
     constexpr qreal scaleMedium = 1;
     constexpr qreal scaleSmall = 1/1.618;
 
-    mDateTextItem.setScale(scaleSmall);
+    mDateTextItem.setScale(scaleMedium);
     mHoursTextItem.setScale(scaleXLarge);
     mColonTextItem.setScale(scaleLarge);
     mMinutesTextItem.setScale(scaleLarge);
-    mTimeZoneTextItem.setScale(scaleSmall);
+    mTimeZoneTextItem.setScale(scaleMedium);
 
     qreal y = 0;
 
@@ -88,7 +91,7 @@ void ClockBasic::setTime(QDateTime timeUtc) {
     y += 5;
 
     mHoursTextItem.setPos(0, 5);
-    mColonTextItem.setPos(52, y + 7);
+    mColonTextItem.setPos(52, y + 9);
     mMinutesTextItem.setPos(65, y + 10);
 
     y += 55;

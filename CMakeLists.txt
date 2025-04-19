@@ -35,6 +35,7 @@ find_package(Qt5 COMPONENTS
         Core
         Gui
         Widgets
+        OpenGL
         REQUIRED)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
@@ -46,6 +47,7 @@ target_link_libraries(${PROJECT_NAME}
         Qt::Core
         Qt::Gui
         Qt::Widgets
+        Qt::OpenGL
 )
 
 

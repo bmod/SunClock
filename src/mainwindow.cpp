@@ -18,7 +18,7 @@ MainWindow::MainWindow(Config& conf) : mConf(conf) {
         mGridWidget.setFace(i, faces[0]);
     }
 
-    connect(&mTimer, &QTimer::timeout, this, &MainWindow::onTimer);
+    connect(&mTimer, &QTimer::timeout, this, &MainWindow::updateTime);
         mTimer.setInterval(1000);
     mTimer.start();
 
@@ -34,7 +34,7 @@ MainWindow::~MainWindow() {
     }
 }
 
-void MainWindow::onTimer() {
+void MainWindow::updateTime() {
     const auto time = QDateTime::currentDateTimeUtc();
     for (auto& clock: mConf.clocks()) {
         clock->setTime(time);
@@ -62,4 +62,9 @@ QList<AbstractClockFace*> MainWindow::createClockFaces(const ClockData& data) {
     clockFaces << new ClockBasic(data);
     clockFaces << new ClockUsa(data);
     return clockFaces;
+}
+
+void MainWindow::resizeEvent(QResizeEvent* event) {
+    QMainWindow::resizeEvent(event);
+    updateTime();
 }
