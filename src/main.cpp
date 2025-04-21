@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QFontDatabase>
+#include <QCommandLineParser>
 #include <QFile>
 
 #include "config.h"
@@ -24,9 +25,24 @@ int main(int argc, char* argv[]) {
 
     Config conf;
 
+    QCommandLineParser parser;
+    parser.addOption(QCommandLineOption("fullscreen", "Start application in fullscreen, on by default.", "fullscreen", "1"));
+    if (!parser.parse(app.arguments()))
+        qFatal(parser.errorText().toLatin1());
+    const auto fullscreenResult = parser.value("fullscreen");
+    bool ok;
+    const bool fullscreen = static_cast<bool>(fullscreenResult.toInt(&ok));
+    if (!ok)
+        qFatal("Failed to interpret fullscreen argument");
+
     MainWindow win(conf);
-    // win.resize(800, 480);
-    // win.show();
-    win.showFullScreen();
+
+    if (fullscreen) {
+        win.showFullScreen();
+    } else {
+        win.resize(800, 480);
+        win.show();
+    }
+
     return app.exec();
 }
