@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "-O0 -fno-elide-constructors -pedantic-errors -ansi -Wextra -Wall     -Winit-self -Wold-style-cast -Woverloaded-virtual -Wuninitialized -Wmissing-declarations    -Winit-self -std=c++98")
 project(sunclock LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -10,6 +11,11 @@ include(FetchContent)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*)
+
+FetchContent_Declare(nlohmann_json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3)
+FetchContent_MakeAvailable(nlohmann_json)
 
 # NOTE: This just happened: https://github.com/HowardHinnant/date/issues/836
 # I don't want to spend time on it, so I'm just going to use the OS timezone Db, may not work in Windows
@@ -30,7 +36,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-
 find_package(Qt5 COMPONENTS
         Core
         Gui
@@ -41,7 +46,11 @@ find_package(Qt5 COMPONENTS
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS src/*.h)
 file(GLOB_RECURSE RESOURCES res/*.qrc)
+
+
 add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCES})
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${nlohmann_json_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(${PROJECT_NAME}
         Qt::Core
@@ -49,7 +58,6 @@ target_link_libraries(${PROJECT_NAME}
         Qt::Widgets
         Qt::OpenGL
 )
-
 
 
 # Core libraries, for windows

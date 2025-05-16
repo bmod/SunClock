@@ -2,6 +2,7 @@
 
 #include "clockfaces/clockbasic.h"
 #include "clockfaces/clockusa.h"
+#include "renderimage.h"
 
 MainWindow::MainWindow(Config& conf) : mConf(conf) {
     mExitAction.setShortcut(Qt::Key_Escape);
@@ -19,11 +20,10 @@ MainWindow::MainWindow(Config& conf) : mConf(conf) {
     }
 
     connect(&mTimer, &QTimer::timeout, this, &MainWindow::updateTime);
-        mTimer.setInterval(1000);
+    mTimer.setInterval(1000);
     mTimer.start();
 
     connect(&mGridWidget, &GridWidget::tileClicked, this, &MainWindow::onTileActivated);
-
 }
 
 MainWindow::~MainWindow() {
@@ -45,7 +45,7 @@ void MainWindow::onTileActivated(int index) {
     // toggleClockFace(index);
 }
 
-void MainWindow::toggleClockFace(int index) {
+void MainWindow::toggleClockFace(const int index) {
     auto& faces = mClockFaces.at(index);
     const auto face = mGridWidget.face(index);
     const auto faceIndex = faces.indexOf(face);
@@ -57,12 +57,13 @@ void MainWindow::toggleClockFace(int index) {
     mGridWidget.setFace(index, newFace);
 }
 
-QList<AbstractClockFace*> MainWindow::createClockFaces(const ClockData& data) {
+QList<AbstractClockFace*> MainWindow::createClockFaces(ClockData& data) {
     QList<AbstractClockFace*> clockFaces;
     clockFaces << new ClockBasic(data);
     clockFaces << new ClockUsa(data);
     return clockFaces;
 }
+
 
 void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);

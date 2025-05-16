@@ -1,10 +1,10 @@
 #include "abstractclockface.h"
 
-AbstractClockFace::AbstractClockFace(const ClockData& clock): mClock(clock) {
+AbstractClockFace::AbstractClockFace(ClockData& clock) : mClock(clock) {
     connect(&mClock, &ClockData::changed, this, &AbstractClockFace::onClockChanged);
 }
 
-const ClockData& AbstractClockFace::clock() const {
+ClockData& AbstractClockFace::clockData() const {
     return mClock;
 }
 void AbstractClockFace::onClockChanged() {

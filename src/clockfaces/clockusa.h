@@ -10,7 +10,7 @@
 class ClockUsa : public AbstractClockFace
 {
 public:
-    ClockUsa(const ClockData& clock);
+    ClockUsa(ClockData& clock);
 
     void setTime(QDateTime timeUtc) override;
 

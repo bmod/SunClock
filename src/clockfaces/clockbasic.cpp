@@ -4,14 +4,19 @@
 #include <QGraphicsLinearLayout>
 #include <qmath.h>
 #include <qtutils.h>
+#include <renderimage.h>
 
 
-ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
+ClockBasic::ClockBasic(ClockData& clock) : AbstractClockFace(clock), mClockData(clock) {
     QFile file(":styleClockBasic.css");
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qFatal("Could not open style file");
     }
     setStyleSheet(file.readAll());
+
+    mItems = {
+            &mHoursTextItem, &mColonTextItem, &mMinutesTextItem, &mDateTextItem, &mTimeZoneTextItem,
+    };
 
     setLayout(&mLayout);
     mLayout.setContentsMargins(0, 0, 0, 0);
@@ -31,6 +36,8 @@ ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
     const auto colMedium = QColor("#889");
     const auto colStrong = QColor("#ECA");
     const auto colLight = QColor("#FED");
+
+    mScene.addItem(&mBackgroundItem);
 
     mHoursTextItem.setDefaultTextColor(colLight);
     mHoursTextItem.setFont(font);
@@ -54,8 +61,8 @@ ClockBasic::ClockBasic(const ClockData& clock) : AbstractClockFace(clock) {
 }
 
 
-void ClockBasic::setTime(QDateTime timeUtc) {
-    const auto dtLocal = timeUtc.toTimeZone(clock().timeZone());
+void ClockBasic::setTime(const QDateTime timeUtc) {
+    const QDateTime dtLocal = timeUtc.toTimeZone(clockData().timeZone());
     const long secs = qFloor(dtLocal.toSecsSinceEpoch());
     const bool isEven = secs % 2;
     const QString colon = isEven ? ":" : " ";
@@ -74,15 +81,15 @@ void ClockBasic::setTime(QDateTime timeUtc) {
     // mDateTextItem.setPlainText(dtLocal.toString("yyyy-MM-dd"));
 
     constexpr qreal scaleXLarge = 1.618 * 1.618;
-    constexpr qreal scaleLarge = 1.618 ;
-    constexpr qreal scaleMedium = 1;
-    constexpr qreal scaleSmall = 1/1.618;
+    constexpr qreal scaleLarge = 1.618;
+    // constexpr qreal scaleMedium = 1;
+    constexpr qreal scaleSmall = 1 / 1.618;
 
-    mDateTextItem.setScale(scaleMedium);
+    mDateTextItem.setScale(scaleSmall);
     mHoursTextItem.setScale(scaleXLarge);
     mColonTextItem.setScale(scaleLarge);
     mMinutesTextItem.setScale(scaleLarge);
-    mTimeZoneTextItem.setScale(scaleMedium);
+    mTimeZoneTextItem.setScale(scaleSmall);
 
     qreal y = 0;
 
@@ -98,6 +105,38 @@ void ClockBasic::setTime(QDateTime timeUtc) {
 
     mTimeZoneTextItem.setPos(8, y);
 
-    fitInView(mGraphicsView, mScene.sceneRect(), 1, 1);
+    const auto itemsRect = itemsBounds();
+
+
+    // const auto scaleX = mBackgroundItem.boundingRect().width() / static_cast<float>(viewRect.width());
+    fitInView(mGraphicsView, itemsRect, 1, 1);
+
+    // float tx = mGraphicsView.transform().m31();
+    // float ty = mGraphicsView.transform().m32();
+    // float sx = mGraphicsView.transform().m11();
+    const float sy = mGraphicsView.transform().m22();
+
+    const auto size = mGraphicsView.viewport()->geometry().size();
+
+    const GeoLocation loc = clockData().location();
+
+    const std::chrono::duration<int64_t> duration(secs);
+    const std::chrono::time_point<std::chrono::system_clock, std::chrono::duration<int64_t>> timePoint(duration);
+
+    const auto im = sRenderImage(size, timePoint, loc.latitude, loc.longitude);
+    const auto pm = QPixmap::fromImage(im);
+
+    mBackgroundItem.setPixmap(pm);
+    mBackgroundItem.setScale(1 / sy);
 }
 
+QRectF ClockBasic::itemsBounds() const {
+    if (mItems.isEmpty())
+        return {};
+
+    QRectF rect = mItems[0]->boundingRect();
+    for (int i = 0; i < mItems.size(); i++) {
+        rect = mItems[i]->boundingRect().united(rect);
+    }
+    return rect;
+}

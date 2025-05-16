@@ -1,11 +1,15 @@
 #include <QApplication>
-#include <QFontDatabase>
 #include <QCommandLineParser>
 #include <QFile>
+#include <QFontDatabase>
 
 #include "config.h"
 #include "mainwindow.h"
 
+
+struct AppArgs {
+    bool isFullScreen = true;
+};
 
 void applyStyle(QApplication& app) {
     QFile cssFile(":/style.css");
@@ -24,11 +28,15 @@ int main(int argc, char* argv[]) {
     applyStyle(app);
 
     Config conf;
+    AppArgs argsData;
 
     QCommandLineParser parser;
-    parser.addOption(QCommandLineOption("fullscreen", "Start application in fullscreen, on by default.", "fullscreen", "1"));
+    parser.addOption(QCommandLineOption("fullscreen", "Start application in fullscreen, on by default.", "fullscreen",
+                                        QString::number(argsData.isFullScreen)));
     if (!parser.parse(app.arguments()))
         qFatal(parser.errorText().toLatin1());
+
+
     const auto fullscreenResult = parser.value("fullscreen");
     bool ok;
     const bool fullscreen = static_cast<bool>(fullscreenResult.toInt(&ok));

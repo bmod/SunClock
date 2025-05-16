@@ -1,22 +1,28 @@
 {
   "clocks": [
     {
-      "timezone": "America/Los_Angeles"
+      "timezone": "America/Los_Angeles",
+      "iata": "LAX"
     },
     {
-      "timezone": "America/New_York"
+      "timezone": "America/New_York",
+      "iata": "JFK"
     },
     {
-      "timezone": "Europe/London"
+      "timezone": "Europe/London",
+      "iata": "LHR"
     },
     {
-      "timezone": "Europe/Amsterdam"
+      "timezone": "Europe/Amsterdam",
+      "iata": "AMS"
     },
     {
-      "timezone": "Asia/Hong_Kong"
+      "timezone": "Asia/Hong_Kong",
+      "iata": "HKG"
     },
     {
-      "timezone": "Australia/Sydney"
+      "timezone": "Australia/Sydney",
+      "iata": "SYD"
     }
   ]
 }

@@ -10,11 +10,11 @@ class AbstractClockFace : public QWidget {
     Q_OBJECT
 
 public:
-    AbstractClockFace(const ClockData& clock);
-    const ClockData& clock() const;
+    AbstractClockFace(ClockData& clock);
+    ClockData& clockData() const;
     virtual void setTime(QDateTime secondsUtc) = 0;
 
 private:
     void onClockChanged();
-    const ClockData& mClock;
+    ClockData& mClock;
 };

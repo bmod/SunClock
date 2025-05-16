@@ -2,7 +2,7 @@
 #include <QtDebug>
 
 
-ClockData::ClockData(const QString& timeZone) {
+ClockData::ClockData(const QString& timeZone, const GeoLocation& location) : mLocation(location) {
     mTimeZone = QTimeZone(timeZone.toLatin1());
     qWarning() << mTimeZone;
 }
@@ -24,4 +24,8 @@ QString ClockData::timezoneName() const {
 
 const QTimeZone& ClockData::timeZone() const {
     return mTimeZone;
+}
+
+const GeoLocation& ClockData::location() const {
+    return mLocation;
 }

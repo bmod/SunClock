@@ -12,11 +12,14 @@
 class ClockBasic : public AbstractClockFace
 {
 public:
-    ClockBasic(const ClockData& clock);
+    ClockBasic(ClockData& clock);
 
+    ClockData& clockData() const { return mClockData; }
     void setTime(QDateTime timeUtc) override;
+    QRectF itemsBounds() const;
 
 private:
+    ClockData& mClockData;
     QVBoxLayout mLayout;
     QGraphicsScene mScene;
     GraphicsView mGraphicsView;
@@ -25,4 +28,6 @@ private:
     QGraphicsTextItem mMinutesTextItem;
     QGraphicsTextItem mDateTextItem;
     QGraphicsTextItem mTimeZoneTextItem;
+    QList<QGraphicsItem*> mItems;
+    QGraphicsPixmapItem mBackgroundItem;
 };

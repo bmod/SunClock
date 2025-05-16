@@ -3,7 +3,7 @@
 
 #include "clockdata.h"
 
-class QJsonObject;
+#include <airportdb.h>
 
 
 class Config
@@ -13,7 +13,7 @@ public:
     const std::vector<std::unique_ptr<ClockData>>& clocks() const;
 
 private:
-
+    AirportDB mAirportDB;
     QJsonDocument mDoc;
     std::vector<std::unique_ptr<ClockData>> mClocks;
 };

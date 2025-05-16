@@ -2,7 +2,7 @@
 
 #include <QFile>
 
-ClockUsa::ClockUsa(const ClockData& clock): AbstractClockFace(clock) {
+ClockUsa::ClockUsa(ClockData& clock): AbstractClockFace(clock) {
     QFile file(":styleClockUsa.css");
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         qFatal("Could not open style file");
@@ -18,6 +18,6 @@ ClockUsa::ClockUsa(const ClockData& clock): AbstractClockFace(clock) {
 }
 
 void ClockUsa::setTime(QDateTime timeUtc) {
-    const auto dtLocal = timeUtc.toTimeZone(clock().timeZone());
+    const auto dtLocal = timeUtc.toTimeZone(clockData().timeZone());
     mTimeLabel.setText(dtLocal.toString("hh:mm:ss ap"));
 }

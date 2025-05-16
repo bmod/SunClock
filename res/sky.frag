@@ -1,11 +1,15 @@
+#version 330
 /*
 Copy-pasted from https://github.com/wwwtyro/glsl-atmosphere/tree/master
 */
 
 uniform vec3 sunDir;
-varying vec3 vPosition;
 uniform vec2 skyRangeX;
 uniform vec2 skyRangeY;
+
+in vec3 position;
+in vec2 uv;
+out vec4 color;
 
 #define M_PI 3.14159265358979323846
 
@@ -150,7 +154,7 @@ float remap01(float v, float lo, float hi) {
 }
 
 void main() {
-    vec2 uv = gl_TexCoord[0].xy;
+    vec2 uv = uv.xy;
     uv.x = 1.0 - uv.x; // flip horizontally
     uv.y = 1.0 - uv.y; // flip vert, because I couldn't find how to flip the rendertexture
     vec2 uvWindow = vec2(remap01(uv.x, skyRangeX.x, skyRangeX.y),
@@ -158,7 +162,7 @@ void main() {
 
     vec3 ray = rectToSpherical(uvWindow);
 
-    vec3 color = atmosphere(
+    vec3 col = atmosphere(
         normalize(ray), // normalized ray direction
         vec3(0.0, 6372e3, 0.0), // ray origin
         sunDir, // position of the sun
@@ -173,11 +177,12 @@ void main() {
     );
 
     // Apply exposure.
-//    color = 1.0 - exp(-2.0 * color);
+    //    color = 1.0 - exp(-2.0 * color);
 
-//    color = vibrance(color, 0.8);
+    //    color = vibrance(color, 0.8);
 
     //    gl_FragColor = vec4(gl_TexCoord[0].xy, 0, 1);
     //    gl_FragColor = vec4(color, 1);
-    gl_FragColor = vec4(color, 1.0);
+//    col = vec3(1, 0, 0);
+    color = vec4(col, 1.0);
 }

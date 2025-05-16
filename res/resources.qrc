@@ -4,9 +4,15 @@
         <file>style.css</file>
         <file>styleClockUsa.css</file>
         <file>styleClockBasic.css</file>
+
         <file>config.json</file>
+        <file>airports.json</file>
+
         <file>DMMono-Medium.ttf</file>
         <file>DMMono-Regular.ttf</file>
         <file>DMMono-Light.ttf</file>
+
+        <file>sky.frag</file>
+        <file>sky.vert</file>
     </qresource>
 </RCC>
